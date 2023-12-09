@@ -1,12 +1,12 @@
 kendis:
   username: kendis
   name: Kendis
-  url_full: http://jekyllt.github.io/jasper2/
-  url: jekyllt.github.io/jasper2
-  bio: The professional publishing platform
+  url_full: http://kendis1002.github.io/android_blog/
+  url: kendis1002.github.io/jasper2
+  bio: Một thằng lập trình viên Android
   picture: assets/images/ghost.png
-  facebook: kendis
-  twitter: trykendis
+  facebook: kendis1002
+  twitter: False
   cover: False
 hannah:
   username: hannah
