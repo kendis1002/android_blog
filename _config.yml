@@ -72,8 +72,8 @@ repo: jasper2
 branch: master
 relative_source: ../jasper2/
 destination: ../jasper2-pages/
-production_url:  https://jekyllt.github.io/jasper2/
-source_url:  https://github.com/jekyllt/jasper2/
+production_url:  https://kendis1002.github.io/android_blog/
+source_url:  https://github.com/kendis1002/android_blog/
 
 exclude:
   - assets/css
