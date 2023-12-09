@@ -67,8 +67,8 @@ feed:
 # or "master" otherwise
 safe: False
 lsi: False
-username: jekyllt
-repo: jasper2
+username: kendis1002
+repo: android_blog
 branch: master
 relative_source: ../jasper2/
 destination: ../jasper2-pages/
