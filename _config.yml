@@ -70,8 +70,8 @@ lsi: False
 username: kendis1002
 repo: android_blog
 branch: master
-relative_source: ../jasper2/
-destination: ../jasper2-pages/
+relative_source: ../android_blog/
+destination: ../android_blog-pages/
 production_url:  https://kendis1002.github.io/android_blog/
 source_url:  https://github.com/kendis1002/android_blog/
 
