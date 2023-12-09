@@ -116,7 +116,7 @@ val ViewModel.viewModelScope: CoroutineScope
 
 Class ViewModel có một thuộc tính ConcurrentHashSet nơi nó có thể lưu trữ bất kỳ loại đối tượng nào. CoroutineScope được lưu trữ ở đó. Nếu ta nhìn vào mã nguồn, phương thức getTag(JOB_KEY) cố gắng lấy scope từ đó. Nếu nó không tồn tại, sau đó tạo một CoroutineScope mới theo cùng cách chúng ta đã làm trước đó và thêm tag vào bộ sưu tập.
 
-Khi ViewModel được xóa, nó thực thi phương thức clear() trước khi gọi phương thức onCleared() mà chúng ta sẽ phải ghi đè nếu không. Trong phương thức clear(), ViewModel hủy Job của viewModelScope. Mã nguồn đầy đủ của ViewModel cũng có sẵn nhưng chúng ta chỉ tập trung vào các phần mà chúng ta quan tâm:
+Khi ViewModel được xóa, nó thực thi phương thức clear() trước khi gọi phương thức onCleared(). Trong phương thức clear(), ViewModel hủy Job của viewModelScope. Mã nguồn đầy đủ của ViewModel cũng có sẵn nhưng chúng ta chỉ tập trung vào các phần mà chúng ta quan tâm:
 
 ```kotlin
 @MainThread
