@@ -9,7 +9,7 @@ subclass: 'post page'
 ---
 Trang blog này được tạo ra nhằm mục đích tạo ra nơi để mình có thể học Android, cũng là nơi mình có thể chia sẻ kiến thức mình đã học được.
 
-## Contact
+## Liên hệ
 Cứ thoải mái liên lạc với mình qua facebook nhé, và mình sẽ sẵn sàng trao đổi với mọi người bất kì câu hỏi nào.
 
 Cảm ơn mọi người!
