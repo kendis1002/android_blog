@@ -4,14 +4,12 @@ current: post
 cover: assets/images/coroutine-cancellation-exceptions.png
 navigation: True
 title: Exception trong coroutine
-date: 2023-12-08 10:18:00
+date: 2023-12-14 10:18:00
 tags: coroutine
 class: post-template
 subclass: 'post'
 author: kendis
 ---
-
-Exception trong coroutine
 
 Tất cả những điều bạn cần biết về exception trong coroutine
 
@@ -21,10 +19,10 @@ Việc xử lý exception đúng cách có ảnh hưởng rất lớn đến cá
 
 ##  Một coroutine bất ngờ bị fail! Làm gì bây giờ? 😱
 
-Khi một coroutine gặp lỗi (exception), nó sẽ truyền lỗi đó lên cho coroutine cha của nó! Sau đó, coroutine cha sẽ:
+Khi một coroutine gặp exception, nó sẽ truyền exception đó lên cho coroutine cha của nó! Sau đó, coroutine cha sẽ:
 1. Hủy bỏ tất cả các coroutine con còn lại của nó.
 2. Hủy bỏ chính nó.
-3. Truyền lỗi lên cho coroutine cha của nó.
+3. Truyền exception lên cho coroutine cha của nó.
 Lỗi sẽ tiếp tục lan truyền cho đến gốc của hệ thống phân cấp, và tất cả các coroutine được khởi tạo bởi ```CoroutineScope``` cũng sẽ bị hủy bỏ.
 
 ![Một exception trong một coroutine sẽ lan truyền xuyên suốt hệ thống phân cấp của các coroutine.](assets/images/coroutine-cancellation-exceptions-1.gif)
