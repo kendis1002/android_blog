@@ -25,9 +25,9 @@ Khi một coroutine gặp exception, nó sẽ truyền exception đó lên cho c
 3. Truyền exception lên cho coroutine cha của nó.
 Lỗi sẽ tiếp tục lan truyền cho đến gốc của hệ thống phân cấp, và tất cả các coroutine được khởi tạo bởi ```CoroutineScope``` cũng sẽ bị hủy bỏ.
 
-![Một exception trong một coroutine sẽ lan truyền xuyên suốt hệ thống phân cấp của các coroutine.](assets/images/coroutine-cancellation-exceptions-1.gif)
+![Một exception trong một coroutine sẽ lan truyền xuyên suốt hệ thống phân cấp của các coroutine.](assets/images/coroutine-cancellation-exceptions-1.gif "Một exception trong một coroutine sẽ lan truyền xuyên suốt hệ thống phân cấp của các coroutine.")
 
-Mặc dù việc truyền tải exception có thể hợp lý trong một số trường hợp, nhưng cũng có những trường hợp khác mà nó không mong muốn. Hãy tưởng tượng một ```CoroutineScope``` liên quan đến UI chịu trách nhiệm xử lý các tương tác của người dùng. Nếu một coroutine con ném exception, phạm vi UI sẽ bị hủy bỏ và toàn bộ thành phần UI sẽ trở nên vô phản hồi vì Scope đã bị huỷ không thể khởi động thêm coroutine nào nữa.
+Mặc dù việc truyền tải exception có thể hợp lý trong một số trường hợp, nhưng cũng có những trường hợp khác mà chúng ta không mong muốn. Hãy tưởng tượng một ```CoroutineScope``` liên quan đến UI chịu trách nhiệm xử lý các tương tác của người dùng. Nếu một coroutine con ném exception, phạm vi UI sẽ bị hủy bỏ và toàn bộ thành phần UI sẽ trở nên vô phản hồi vì Scope đã bị huỷ không thể khởi động thêm coroutine nào nữa.
 
 Làm thế nào nếu bạn không muốn hành vi đó? Thay vào đó, bạn có thể sử dụng một triển khai khác của ```Job```, cụ thể là ```SupervisorJob```, trong ```CoroutineContext``` của ```CoroutineScope``` để tạo các coroutine này.
 
