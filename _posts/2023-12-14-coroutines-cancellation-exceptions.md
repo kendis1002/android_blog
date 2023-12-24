@@ -200,3 +200,51 @@ Trong trường hợp này, nếu ```async``` ném Exception, nó sẽ được 
 > ⚠️ Exception ném ra trong builder ```coroutineScope``` hoặc trong các coroutine con khác sẽ KHÔNG được bắt bởi khối try/catch ở đây!
 
 Trong phần ```SupervisorJob```, chúng ta đã đề cập đến sự tồn tại của ```CoroutineExceptionHandler```. Bây giờ hãy cùng tìm hiểu sâu hơn về nó!
+
+## CoroutineExceptionHandler
+
+```CoroutineExceptionHandler``` là một thành phần tùy chọn trong ```CoroutineContext```, cho phép bạn xử lý các **exception không được bắt**.
+
+Đây là cách mà bạn có thể định nghĩa một ```CoroutineExceptionHandler``` bất cứ khi nào mà exception được bắt bạn sẽ có thông tin về ```CoroutineContext``` nơi mà exception xảy ra và exception đó.
+
+```kotlin
+val handler = CoroutineExceptionHandler {
+    context, exception -> println("Caught $exception")
+}
+```
+
+Exception sẽ được bắt nếu thoả mãn các yêu cầu sau:
+- **Khi ⏰:** Exception được ném ra bởi một coroutine tự động ném exception (hoạt động với ```launch```, không hoạt động với ```async```).
+- **Ở 🌍:** Nếu nó nằm trong ```CoroutineContext``` của ```CoroutineScope``` hoặc một coroutine gốc (con trực tiếp của ```CoroutineScope``` hoặc ```supervisorScope```).
+
+Hãy xem một số ví dụ sử dụng CoroutineExceptionHandler được định nghĩa ở trên. Trong ví dụ sau, exception sẽ được bắt bởi trình xử lý:
+
+```kotlin
+val scope = CoroutineScope(Job())
+scope.launch(handler) {
+    launch {
+        throw Exception("Failed coroutine")
+    }
+}
+```
+
+Trong trường hợp khách, trình xử lý được cài đặt trong một coroutine bên trong, exception sẽ không được bắt:
+
+```kotlin
+val scope = CoroutineScope(Job())
+scope.launch {
+    launch(handler) {
+        throw Exception("Failed coroutine")
+    }
+}
+```
+
+Exception không được bắt vì trình xử lý không được cài đặt trong CoroutineContext phù hợp. Coroutine bên trong sẽ truyền exception lên coroutine cha ngay khi nó xảy ra, vì coroutine cha không biết gì về trình xử lý, nên exception sẽ bị ném ra.
+
+---
+
+Xử lý exception khéo léo trong ứng dụng của bạn rất quan trọng để mang lại trải nghiệm người dùng tốt, ngay cả khi mọi thứ không diễn ra như mong đợi.
+
+Hãy nhớ sử dụng SupervisorJob khi bạn muốn tránh truyền lan hủy bỏ khi xảy ra exception, và sử dụng Job trong các trường hợp khác.
+
+Exception mà không được bắt sẽ được lan truyền, hãy bắt chúng để mang lại trải nghiệm người dùng tuyệt vời!
