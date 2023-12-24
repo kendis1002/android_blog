@@ -83,4 +83,4 @@ Hilt là giải pháp dependency injection (DI) được Jetpack đề xuất ch
 - [Hướng dẫn chuyển đổi từ Dagger sang Hilt](https://dagger.dev/hilt/migration-guide): Nếu bạn đang sử dụng Dagger, tài liệu này sẽ hướng dẫn bạn cách chuyển sang Hilt từng bước.
 - Codelabs học Hilt theo từng bước: [Hướng dẫn sử dụng Hilt trong ứng dụng Android](https://codelabs.developers.google.com/codelabs/android-hilt) và [Chuyển đổi từ Dagger sang Hilt](https://codelabs.developers.google.com/codelabs/android-dagger-to-hilt).
 - Code sample: Xem Hilt hoạt động trong các ứng dụng thực tế như [Google I/O 2020](https://github.com/google/iosched) và [Sunflower](https://github.com/android/sunflower/).
-- Cheat sheet: Tổng hợp nhanh các chú thích của Hilt và Dagger và cách sử dụng chúng.
+- [Cheat sheet](https://developer.android.com/images/training/dependency-injection/hilt-annotations.pdf): Tổng hợp nhanh các chú thích của Hilt và Dagger và cách sử dụng chúng.
