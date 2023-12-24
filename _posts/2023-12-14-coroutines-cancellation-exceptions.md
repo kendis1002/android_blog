@@ -97,7 +97,7 @@ val scope = CoroutineScope(Job())
 
 scope.launch(SupervisorJob()) {
     // new coroutine -> can suspend
-   launch {
+    launch {
         // Child 1
     }
     launch {
