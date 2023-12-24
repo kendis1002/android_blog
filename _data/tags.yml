@@ -2,6 +2,10 @@ coroutine:
   name: coroutine
   description: Giải pháp được đề xuất của Android cho lập trình không đồng bộ.
   cover: assets/images/blog-cover.jpg
+coroutine:
+  name: hilt
+  description: Giải pháp Dependency Injection của Jetpack cho Android app.
+  cover: assets/images/blog-cover.jpg
 speeches:
   name: speeches
   description: Some of the greatest words ever spoken.
