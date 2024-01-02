@@ -19,7 +19,8 @@ Hướng dẫn của Google về event ViewModel có hai quan điểm chính:
     - Bất cứ khi nào một event một lần xuất hiện trong ViewModel, ViewModel nên xử lý event đó ngay lập tức, tạo ra cập nhật state. ViewModel chỉ nên công khai state ứng dụng. Việc công khai các event chưa được rút gọn thành state từ ViewModel có nghĩa là ViewModel không phải là nsource of truth cho state được suy ra từ các event đó. [Unidirectional Data Flow](https://developer.android.com/jetpack/compose/architecture#udf) (UDF) mô tả những lợi thế của việc chỉ gửi event đến các object tiêu thụ tồn tại lâu hơn đối tượng tạo ra chúng.
     - State của ứng dụng nên được công khai thông qua một trình giữ dữ liệu có thể observable.
 
-![Theo UDF (Unidirectional Data Flow - Luồng Dữ liệu Một Chiều), state chạy xuống từ ViewModel đến UI và event đi lên từ UI đến ViewModel.](assets/images/viewmodel-events-antipatterns-1.png "Theo UDF (Unidirectional Data Flow - Luồng Dữ liệu Một Chiều), state chạy xuống từ ViewModel đến UI và event đi lên từ UI đến ViewModel.")
+
+![Theo UDF (Unidirectional Data Flow - Luồng Dữ liệu Một Chiều), state chạy xuống từ ViewModel đến UI và event đi lên từ UI đến ViewModel.](assets/images/viewmodel-events-antipatterns-1.png "Theo UDF (Unidirectional Data Flow - Luồng Dữ liệu Một Chiều), state chạy xuống từ ViewModel đến UI và event đi lên từ UI đến ViewModel."){ align="center" }
 
 Trong ứng dụng của bạn, bạn có thể đang sử dụng Kotlin Channels hoặc các reactive streams khác như SharedFlow để truyền event từ ViewModel đến UI, hoặc có thể bạn đã thấy mô hình này trong các dự án khác. Tuy nhiên, khi producer (ViewModel) tồn tại lâu hơn consumer (UI - Compose hoặc Views), như trường hợp của các event ViewModel, các API này **KHÔNG ĐẢM BẢO** việc gửi và xử lý các event đó. Điều này có thể dẫn đến lỗi và các vấn đề trong tương lai cho developer, đồng thời mang lại trải nghiệm người dùng không mong muốn cho hầu hết các ứng dụng.
 
