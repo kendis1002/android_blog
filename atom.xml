@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title> - Articles</title>
+    <description>Một nơi mà tôi và bạn có thể học Android cùng nhau</description>
+    <link>
+    </link>
+    
+      
+      <item>
+        <title>Hilt đã stable. Đơn giản hoá việc dependency injection trong Android</title>
+        
+          <description>&lt;p&gt;Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sun, 24 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /hilt-stable</link>
+        <guid isPermaLink="true">/hilt-stable</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Exception trong coroutine</title>
+        
+          <description>&lt;p&gt;Tất cả những điều bạn cần biết về exception trong coroutine&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 14 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /coroutines-cancellation-exceptions</link>
+        <guid isPermaLink="true">/coroutines-cancellation-exceptions</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Best practices về coroutine trong Android</title>
+        
+          <description>&lt;p&gt;Dưới đây sẽ là một số best practices có tác động tích cực bằng cách làm cho ứng dụng của bạn trở nên có khả năng mở rộng và test tốt hơn khi sử dụng &lt;strong&gt;coroutines&lt;/strong&gt;.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 08 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /best-practices-for-coroutines-in-android</link>
+        <guid isPermaLink="true">/best-practices-for-coroutines-in-android</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Antipattern - ViewModel event 1 lần</title>
+        
+          <description>&lt;p&gt;Bạn nên xử lý ngay các event ViewModel bằng cách update UI state&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 08 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /viewmodel-events-antipatterns</link>
+        <guid isPermaLink="true">/viewmodel-events-antipatterns</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Coroutines đơn giản trong Android - viewModelScope</title>
+        
+          <description>&lt;p&gt;Tìm hiểu mọi thứ bạn nên biết về viewModelScope&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 08 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /viewmodelscope</link>
+        <guid isPermaLink="true">/viewmodelscope</guid>
+      </item>
+      
+    
+  </channel>
+</rss>

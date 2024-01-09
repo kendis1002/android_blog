@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom" >
+  <generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator>
+  <link href="/android_blog/tag/hilt/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="/android_blog/" rel="alternate" type="text/html" />
+  <updated>2024-01-09T15:15:04+00:00</updated>
+  <id>/android_blog/tag/hilt/feed.xml</id>
+
+  
+  
+  
+
+  
+    <title type="html">Kendis .dev | </title>
+  
+
+  
+    <subtitle>Một nơi mà tôi và bạn có thể học Android cùng nhau</subtitle>
+  
+
+  
+
+  
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+
+  
+  
+
+  
+    <entry>
+      <title type="html">Hilt đã stable. Đơn giản hoá việc dependency injection trong Android</title>
+      <link href="/android_blog/hilt-stable" rel="alternate" type="text/html" title="Hilt đã stable. Đơn giản hoá việc dependency injection trong Android" />
+      <published>2023-12-24T10:18:00+00:00</published>
+      <updated>2023-12-24T10:18:00+00:00</updated>
+      <id>/android_blog/hilt-stable</id>
+      <content type="html" xml:base="/android_blog/hilt-stable">&lt;p&gt;Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android&quot;&gt;Hilt&lt;/a&gt;, &lt;a href=&quot;https://developer.android.com/training/dependency-injection&quot;&gt;Giải pháp Dependency Injection&lt;/a&gt; của Jetpack cho Android app, đã chính thức &lt;strong&gt;stable&lt;/strong&gt; và sẵn sàng để sử dụng trong môi trường &lt;strong&gt;production&lt;/strong&gt;! Hilt hứa hẹn sự đơn giản, ít code thừa hơn Dagger, được thiết kế dành riêng cho Android và tích hợp liền mạch với nhiều thư viện Jetpack khác. Nhiều công ty đã bắt đầu áp dụng Hilt trong các ứng dụng của họ.&lt;/p&gt;
+
+&lt;p&gt;Kể từ khi được phát hành dưới dạng alpha vào tháng 6 năm 2020 với sứ mệnh thiết lập một phương thức DI tiêu chuẩn cho các ứng dụng Android, Hilt đã nhận được nhiều phản hồi từ các nhà phát triển. Điều này không chỉ giúp cải thiện thư viện mà còn cho thấy chúng ta đang đi đúng hướng trong việc giải quyết những vấn đề nan giải.&lt;/p&gt;
+
+&lt;p&gt;Thay vì tự tạo sơ đồ phụ thuộc, tiêm thủ công và truyền các kiểu qua lại, Hilt tự động tạo tất cả mã này cho bạn thông qua chú thích khi biên dịch. Hilt giúp bạn tận dụng tối đa các nguyên tắc hay của DI bằng cách xử lý những công việc phức tạp và tự động tạo mã boilerplate mà bạn vốn phải viết. Ngoài ra, với khả năng tích hợp hoàn toàn với Android, Hilt tự động quản lý vòng đời của các sơ đồ phụ thuộc liên quan đến các lớp framework Android.&lt;/p&gt;
+
+&lt;p&gt;Hãy cùng xem Hilt hoạt động như thế nào qua một ví dụ đơn giản! Sau khi &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android#setup&quot;&gt;thiết lập Hilt&lt;/a&gt;, sử dụng nó trong dự án mới để tiêm một ViewModel vào một Activity chỉ đơn giản bằng cách thêm một vài chú thích vào mã như sau:&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@HiltAndroidApp&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Setup Hilt in your app&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyApplication&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Make Hilt aware of this ViewModel&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@HiltViewModel&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LoginViewModel&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@Inject&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;constructor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;savedStateHandle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SavedStateHandle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/* ... Other dependencies Hilt takes care of ... */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ViewModel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&quot;c1&quot;&gt;// Make the activity use the right ViewModel factory and&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// inject other dependencies&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@AndroidEntryPoint&lt;/span&gt; 
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LoginActivity&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AppCompatActivity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;loginViewModel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LoginViewModel&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viewModels&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Bundle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// loginViewModel is ready to be used&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Ngoài những lợi ích đã nêu ở trên, tại sao bạn nên sử dụng Hilt trong ứng dụng Android của mình?&lt;/p&gt;
+
+&lt;h2 id=&quot;đơn-giản-hơn-dagger&quot;&gt;Đơn giản hơn Dagger&lt;/h2&gt;
+
+&lt;p&gt;Hilt được xây dựng dựa trên Dagger, một thư viện tiêm phụ thuộc (DI) phổ biến, do đó thừa hưởng những ưu điểm như tính chính xác thời gian biên dịch, hiệu suất thời gian chạy, khả năng mở rộng và hỗ trợ Android Studio mà Dagger cung cấp. Một số chú thích của Dagger, ví dụ như @Inject để hướng dẫn Dagger và Hilt cách cung cấp một thực thể của một kiểu, vẫn được sử dụng thường xuyên trong Hilt. Tuy nhiên, Hilt đơn giản hơn Dagger!&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Tôi rất khuyến khích sử dụng Dagger để thực hiện việc DI trong ứng dụng Android. Tuy nhiên, Dagger gốc có thể tạo ra quá nhiều không gian cho sự sáng tạo. Khi điều đó kết hợp với sự phức tạp của các thành phần nhận thức vòng đời khác nhau trong phát triển Android, có rất nhiều khả năng rơi vào các vấn đề như rò rỉ bộ nhớ: ví dụ, vô tình truyền các phụ thuộc có phạm vi hoạt động từ Activity vào ViewModels. Hilt, với tính chất có quan điểm cụ thể và được thiết kế đặc biệt cho Android, giúp bạn tránh một số rủi ro khi sử dụng Dagger gốc.” — Marcelo Hernandez, Kỹ sư Phần mềm Cấp cao, Tinder&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Nếu bạn đang sử dụng Dagger, bạn có thể hoàn toàn di chuyển từ Dagger sang Hilt theo từng phần trong ứng dụng Android của mình, Dagger và Hilt có thể tồn tại đồng thời trong ứng dụng, cho phép bạn tận hưởng những lợi ích của Hilt từng bước.&lt;/p&gt;
+
+&lt;h2 id=&quot;ít-boilerplate-code&quot;&gt;Ít boilerplate code&lt;/h2&gt;
+
+&lt;p&gt;Hilt có tính định hướng rõ ràng, tức là nó đưa ra những quyết định cho bạn để bạn không phải viết nhiều mã. Hilt xác định các thành phần tiêu chuẩn, hoặc sơ đồ phụ thuộc, được tích hợp hoàn toàn với các lớp framework Android như Application, Activity, Fragment và View. Ngoài ra, nó cũng cung cấp các scope annotation để xác định phạm vi của các thực thể đối với các thành phần đó.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Hilt tự động tạo ứng dụng kiểm thử và thành phần kiểm thử thông qua chú thích @HiltAndroidTest. Sau khi di chuyển sang Hilt, chúng tôi đã giảm được từ 20% đến 40% lượng mã boilerplate cần thiết để kết nối mã kiểm thử!” - Jusun Lee, Kỹ sư Phần mềm, YouTube&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Chúng tôi chỉ mới bắt đầu trong việc di chuyển sang Hilt. Tuy nhiên, một trong những mô-đun đã được di chuyển, chúng tôi nhận thấy sự thay đổi +78/-182 dòng mã cho thư viện này.” - Marcelo Hernandez, Kỹ sư Phần mềm Cấp cao, Tinder&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;tích-hợp-với-các-thư-viện-jetpack-khác&quot;&gt;Tích hợp với các thư viện Jetpack khác&lt;/h2&gt;
+
+&lt;p&gt;Bạn có thể sử dụng các thư viện Jetpack yêu thích của mình với Hilt ngay lập tức. Hiện tại, Android cung cấp hỗ trợ inject trực tiếp cho ViewModel, WorkManager, Navigation và Compose.&lt;/p&gt;
+
+&lt;p&gt;Để tìm hiểu thêm về sự hỗ trợ Jetpack, hãy tham khảo &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-jetpack&quot;&gt;tài liệu&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Tôi thực sự đánh giá cao cách Hilt hoạt động ngay lập tức với ViewModel và cách nó loại bỏ mã boilerplate phải thiết lập ViewModel.Factory với Dagger thuần.” — Marcelo Hernandez, Kỹ sư Phần mềm Cấp cao, Tinder&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;nguồn-để-tìm-hiểu-về-hilt&quot;&gt;Nguồn để tìm hiểu về Hilt&lt;/h2&gt;
+
+&lt;p&gt;Hilt là giải pháp dependency injection (DI) được Jetpack đề xuất cho các ứng dụng Android. Bạn có thể tìm hiểu thêm về Hilt và bắt đầu sử dụng nó trong các ứng dụng của mình thông qua các tài liệu sau:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Lợi ích của dependency injection: Tìm hiểu lý do tại sao nên sử dụng DI trong phát triển ứng dụng Android tại &lt;a href=&quot;https://developer.android.com/training/dependency-injection&quot;&gt;đây&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;Tài liệu Hilt: Tham khảo &lt;a href=&quot;https://manuelvivo.dev/hilt-stable#:~:text=injection%20here.-,Documentation,-to%20learn%20how&quot;&gt;tài liệu chính thức&lt;/a&gt; để nắm được cách sử dụng Hilt trong ứng dụng của bạn.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dagger.dev/hilt/migration-guide&quot;&gt;Hướng dẫn chuyển đổi từ Dagger sang Hilt&lt;/a&gt;: Nếu bạn đang sử dụng Dagger, tài liệu này sẽ hướng dẫn bạn cách chuyển sang Hilt từng bước.&lt;/li&gt;
+  &lt;li&gt;Codelabs học Hilt theo từng bước: &lt;a href=&quot;https://codelabs.developers.google.com/codelabs/android-hilt&quot;&gt;Hướng dẫn sử dụng Hilt trong ứng dụng Android&lt;/a&gt; và &lt;a href=&quot;https://codelabs.developers.google.com/codelabs/android-dagger-to-hilt&quot;&gt;Chuyển đổi từ Dagger sang Hilt&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;Code sample: Xem Hilt hoạt động trong các ứng dụng thực tế như &lt;a href=&quot;https://github.com/google/iosched&quot;&gt;Google I/O 2020&lt;/a&gt; và &lt;a href=&quot;https://github.com/android/sunflower/&quot;&gt;Sunflower&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.android.com/images/training/dependency-injection/hilt-annotations.pdf&quot;&gt;Cheat sheet&lt;/a&gt;: Tổng hợp nhanh các chú thích của Hilt và Dagger và cách sử dụng chúng.&lt;/li&gt;
+&lt;/ul&gt;</content>
+
+      
+      
+      
+      
+      
+
+      <author>
+          <name>Kendis</name>
+        
+        
+      </author>
+
+      
+
+      
+        <category term="hilt" />
+      
+
+      
+        <summary type="html">Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.</summary>
+      
+
+      
+      
+    </entry>
+  
+</feed>
