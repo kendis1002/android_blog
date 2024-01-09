@@ -108,7 +108,7 @@ class LatestNewsViewModel(
 
 Các Views không nên trực tiếp kích hoạt bất kỳ coroutine nào để thực hiện business logic. Thay vào đó, chuyển trách nhiệm đó cho **ViewModel**. Điều này làm cho business logic của bạn dễ test hơn vì object ViewModel có thể được unit test, thay vì sử dụng các bài test instrumentation cần thiết để test views.
 
-Ngoài ra, coroutine của bạn sẽ tự động tồn tại qua các thay đổi cấu hình nếu công việc được bắt đầu trong **viewModelScope**. Nếu bạn tạo coroutines bằng cách sử dụng **lifecycleScope** thay thế, bạn sẽ phải xử lý điều đó một cách thủ công. Nếu coroutine cần tồn tại qua scope của ViewModel, hãy xem phần [Tạo coroutines trong layer business và data](https://developer.android.com/kotlin/coroutines/coroutines-best-practices#create-coroutines-data-layer).
+Ngoài ra, coroutine của bạn sẽ tự động tồn tại qua các thay đổi cấu hình nếu công việc được bắt đầu trong **viewModelScope**. Nếu bạn tạo coroutines bằng cách sử dụng **lifecycleScope** thay thế, bạn sẽ phải xử lý điều đó một cách thủ công. Nếu coroutine cần tồn tại qua scope của **ViewModel**, hãy xem phần [Tạo coroutines trong layer business và data](https://developer.android.com/kotlin/coroutines/coroutines-best-practices#create-coroutines-data-layer).
 
 > Lưu ý: Views nên kích hoạt coroutines để thực hiện logic liên quan đến UI. Ví dụ, tải một hình ảnh từ Internet hoặc định dạng một string.
 
@@ -137,7 +137,7 @@ class LatestNewsViewModel : ViewModel() {
 
 ## Data and business layer nên xuất các function suspend và flows.
 
-Các class trong data and business layer thông thường xuất các function để thực hiện cuộc gọi một lần hoặc để được thông báo về thay đổi dữ liệu theo thời gian. Các class trong những class đó nên xuất các hàm suspend để thực hiện cuộc gọi một lần và Flow để thông báo về thay đổi dữ liệu.
+Các class trong data and business layer thông thường xuất các function để thực hiện cuộc gọi một lần hoặc để được thông báo về thay đổi dữ liệu theo thời gian. Các class trong những class đó nên xuất các hàm **suspend để thực hiện cuộc gọi một lần** và **Flow để thông báo về thay đổi dữ liệu**.
 
 ```kotlin
 // Classes in the data and business layer expose
@@ -174,7 +174,7 @@ class GetAllBooksAndAuthorsUseCase(
 }
 ```
 
-Nếu công việc cần thực hiện liên quan đến việc mở ứng dụng và công việc không liên quan đến màn hình cụ thể, thì công việc đó nên tồn tại qua vòng đời của người gọi. Đối với tình huống này, nên sử dụng một CoroutineScope bên ngoài như được giải thích trong bài viết blog [Coroutines & Patterns for work that shouldn’t be cancelled](https://medium.com/androiddevelopers/coroutines-patterns-for-work-that-shouldnt-be-cancelled-e26c40f142ad).
+Nếu công việc cần thực hiện liên quan đến việc mở ứng dụng và công việc không liên quan đến màn hình cụ thể, thì công việc đó nên tồn tại qua vòng đời của người gọi. Đối với tình huống này, nên sử dụng một **CoroutineScope** bên ngoài như được giải thích trong bài viết blog [Coroutines & Patterns for work that shouldn’t be cancelled](https://medium.com/androiddevelopers/coroutines-patterns-for-work-that-shouldnt-be-cancelled-e26c40f142ad).
 
 ```kotlin
 class ArticlesRepository(
@@ -195,7 +195,7 @@ class ArticlesRepository(
 
 ## Tránh sử dụng GlobalScope
 
-Điều này tương tự như thực hành tốt Inject Dispatchers. Bằng cách sử dụng GlobalScope, bạn đang hard code CoroutineScope mà một class sử dụng, mang theo một số nhược điểm:
+Điều này tương tự như thực hành tốt Inject Dispatchers. Bằng cách sử dụng **GlobalScope**, bạn đang hard code CoroutineScope mà một class sử dụng, mang theo một số nhược điểm:
 
 * Thúc đẩy việc hard code giá trị. Nếu bạn hard code GlobalScope, bạn có thể cũng đang hard code Dispatchers.
 
@@ -247,14 +247,15 @@ Sự hủy bỏ trong coroutines là hợp tác, có nghĩa là khi một **Job*
 
 Ví dụ, nếu bạn đang đọc nhiều tệp từ đĩa, trước khi bắt đầu đọc mỗi tệp, kiểm tra xem coroutine có bị hủy bỏ hay không. Một cách để kiểm tra hủy bỏ là bằng cách gọi function **ensureActive**.
 
+```kotlin
 someScope.launch {
     for(file in files) {
         ensureActive() // Check for cancellation
         readFile(file)
     }
 }
-
-Tất cả các suspend function từ kotlinx.coroutines như withContext và delay đều có thể bị hủy bỏ. Nếu coroutine của bạn gọi chúng, bạn không cần phải thực hiện bất kỳ công việc bổ sung nào.
+```
+Tất cả các suspend function từ **kotlinx.coroutines** như **withContext** và **delay** đều có thể bị hủy bỏ. Nếu **coroutine** của bạn gọi chúng, bạn không cần phải thực hiện bất kỳ công việc bổ sung nào.
 
 Để biết thêm thông tin về việc hủy bỏ trong coroutines, hãy kiểm tra bài blog [Cancellation in coroutines](https://medium.com/androiddevelopers/cancellation-in-coroutines-aa6b90163629).
 
