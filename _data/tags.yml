@@ -10,6 +10,10 @@ hilt:
   name: hilt
   description: Giải pháp Dependency Injection của Jetpack cho Android app.
   cover: assets/images/blog-cover.jpg
+compose:
+  name: compose
+  description: Các giải pháp khi sử dụng Jetpack Compose cho Android app.
+  cover: assets/images/blog-cover.jpg
 speeches:
   name: speeches
   description: Some of the greatest words ever spoken.
