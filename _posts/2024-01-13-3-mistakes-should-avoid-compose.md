@@ -56,8 +56,6 @@ fun MyListItem(
 Chỉ đơn giản là tạo 1 list các item có thể scroll được. Và khi scroll thì text sẽ di chuyển theo phương ngang. Thực ra đối với ví dụ trên thì sẽ không có thật ngoài thực tế đâu. Khi scroll thì item ```MyListItem``` sẽ di chuyển sang 2 bên.
 Nhưng điều đáng nói ở đây là gì, lúc này, khi kiểm tra LayoutInspector và thực hiện scroll, ta thấy rằng ```MyListItem``` lại bị recomposing liên tục.
 
-![```MyListItem``` bị recomposing liên tục](assets/images/3-mistakes-compose.png "```MyListItem``` bị recomposing liên tục"){ width=70% }
-
 Đây là lý do phổ biến mà nhiều người phàn nàn về việc **LazyColumn** hay cả **Scrollable** view bị lag. Và lý do là sử dụng scroll state không đúng.
 
 Quay lại code của chúng ta để tìm hiểu tại sao lại xảy ra vấn đề này và tìm cách giải quyết. Chúng ta đã tạo 1 state và truyền nó sang 1 sub-component là ```MyListItem```. Mỗi lúc scrollState thay đổi thì ```MyListItem``` sẽ thay đổi bởi vì thực ra state truyền vào đã thay đổi rồi nên 1 compose như ```MyListItem``` biết là phải recompose lại.
