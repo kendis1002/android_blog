@@ -14,7 +14,8 @@ author: kendis
 Dưới đây sẽ là một số lỗi cần phải tránh khi sử dụng **Jetpack Compose**.
 
 ## Sử dụng scroll state value
-Không nên hard code **Dispatchers** khi tạo **coroutines** mới hoặc gọi với **withContext**.
+
+Hãy cùng xem xét ví dụ dưới đây:
 
 ```kotlin
 @Composable
@@ -52,10 +53,10 @@ fun MyListItem(
 }
 ```
 
-Thực ra đối với ví dụ trên thì sẽ không có thật ngoài thực tế đâu. Khi scroll thì item ```MyListItem``` sẽ di chuyển sang 2 bên.
+Chỉ đơn giản là tạo 1 list các item có thể scroll được. Và khi scroll thì text sẽ di chuyển theo phương ngang. Thực ra đối với ví dụ trên thì sẽ không có thật ngoài thực tế đâu. Khi scroll thì item ```MyListItem``` sẽ di chuyển sang 2 bên.
 Nhưng điều đáng nói ở đây là gì, lúc này, khi kiểm tra LayoutInspector và thực hiện scroll, ta thấy rằng ```MyListItem``` lại bị recomposing liên tục.
 
-![```MyListItem``` bị recomposing liên tục](assets/images/3-mistakes-compose.png "```MyListItem``` bị recomposing liên tục")
+![```MyListItem``` bị recomposing liên tục](assets/images/3-mistakes-compose.png =300x "```MyListItem``` bị recomposing liên tục")
 
 Đây là lý do phổ biến mà nhiều người phàn nàn về việc **LazyColumn** hay cả **Scrollable** view bị lag. Và lý do là sử dụng scroll state không đúng.
 
