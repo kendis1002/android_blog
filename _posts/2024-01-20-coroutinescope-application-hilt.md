@@ -281,5 +281,5 @@ Ví dụ của bài viết trên được áp dụng tại [đây](https://githu
 
 ------
 
-Trong bài viết này, bạn đã học cách tạo một CoroutineScope có phạm vi ứng dụng bằng cách sử dụng Hilt, tiêm nó như một phụ thuộc, tiêm các trường hợp khác nhau của CoroutineDispatcher, và thay thế các triển khai của chúng trong các bài kiểm tra.
+Trong bài viết này, bạn đã học cách tạo một CoroutineScope có phạm vi ứng dụng bằng cách sử dụng Hilt, inject nó như một phụ thuộc, inject các trường hợp khác nhau của CoroutineDispatcher, và thay thế các triển khai của chúng trong các bài kiểm tra.
 
