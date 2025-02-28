@@ -3,7 +3,7 @@ layout: post
 current: post
 cover: assets/images/collect-flow.png
 navigation: True
-title: derivedStateOf vs remember(key) Chúng nó rất khác nhau đấy
+title: derivedStateOf vs remember Chúng nó rất khác nhau đấy
 date: 2025-02-28 10:18:00
 tags: compose
 class: post-template
