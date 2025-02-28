@@ -1,10 +1,10 @@
 ---
 layout: post
 current: post
-cover: assets/images/collect-flow.png
+cover: assets/images/derived-state-of.png
 navigation: True
 title: derivedStateOf vs remember Chúng nó rất khác nhau đấy
-date: 2024-01-26 10:18:00
+date: 2025-01-26 10:18:00
 tags: compose
 class: post-template
 subclass: 'post'
