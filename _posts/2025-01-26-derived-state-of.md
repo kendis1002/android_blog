@@ -3,7 +3,7 @@ layout: post
 current: post
 cover: assets/images/derived-state-of.png
 navigation: True
-title: derivedStateOf vs remember Chúng nó rất khác nhau đấy
+title: derivedStateOf VS. remember(key) - Chúng nó rất khác nhau đấy.
 date: 2025-01-26 10:18:00
 tags: compose
 class: post-template
@@ -91,6 +91,8 @@ fun ScrollToTopButton(
 Và bấm Run.
 
 Mọi thứ chạy ổn, nhưng khoan. Có 1 thứ lạ. Ta thấy khi scroll ```FloatingActionButton``` recompose quá nhiều lần. Có vẻ không ổn.
+
+![Issue](assets/images/derived-state-of-2.png)
 
 Hãy thử sang **derivedStateOf**
 
