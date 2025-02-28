@@ -3,8 +3,8 @@ layout: post
 current: post
 cover: assets/images/derived-state-of.png
 navigation: True
-title: derivedStateOf VS. remember(key) - Chúng nó rất khác nhau đấy
-date: 2025-08-28 10:18:00
+title: derivedStateOf vs remember(key) Chúng nó rất khác nhau đấy
+date: 2025-02-28 10:18:00
 tags: compose
 class: post-template
 subclass: 'post'
