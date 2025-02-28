@@ -139,5 +139,3 @@ còn đối với derivedStateOf, nó sẽ kiểm tra lại giá trị với v�
 ## Tổng kết
 
 Khi xem qua ví dụ trên, có thể một vài người sẽ nghĩ chuyện này đơn giản và không quan trọng. Tuy nhiên trong thực thế, với các dự án lớn thì việc sử dụng thích hợp giữa derivedStateOf VS. remember(key) sẽ giảm thiểu sự giật lag đi rất nhiều.
-
-
