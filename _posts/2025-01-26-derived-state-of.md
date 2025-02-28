@@ -132,12 +132,11 @@ Vậy thì lý do là gì?
 
 2 function này nghe có vẻ mục đích của nó là giống nhau. Đều lắng nghe thay đổi từ lazyListState và rồi tạo cập nhật giá trị cho ```showScrollToTopButton```.
 
-remember trong trường hợp này sẽ quan sát lắng nghe giá trị của ```state.firstVisibleItemIndex``` mà chúng ta pass vào. Ngay khi param này thay đổi thì nó sẽ nhận thay đổi và cập nhật giá trị cho ```showScrollToTopButton```, vì vậy Compose phải recompose lại.
+Trong trường hợp này, chúng ta sẽ quan sát giá trị của ```state.firstVisibleItemIndex```. Mỗi khi giá trị này thay đổi, ```showScrollToTopButton``` sẽ được cập nhật, khiến Compose phải recompose lại. Tuy nhiên, điều này không phải là điều chúng ta mong muốn vì gây ra việc recompose không cần thiết.
 
-Ta nhận thấy giá trị của ```showScrollToTopButton``` chỉ là Boolean thôi và nó chỉ thay đổi khi đúng điều kiện nhất định, trong trường hợp này là ```state.firstVisibleItemIndex >= 5 ?```. Không nên cứ mỗi khi first Vì thế ```state.firstVisibleItemIndex``` thay đổi thì lại cập nhật giá trị của ```showScrollToTopButton```, đó không phải là thứ mà chúng ta muốn.
+Ta nhận thấy rằng giá trị của ```showScrollToTopButton``` chỉ là một **boolean** và nó chỉ thay đổi khi đạt một điều kiện nhất định, trường hợp trên là ```state.firstVisibleItemIndex >= 5```. Do đó, không cần phải cập nhật ```showScrollToTopButton``` mỗi khi ```firstVisibleItemIndex``` thay đổi.
 
-còn đối với derivedStateOf, nó sẽ kiểm tra lại giá trị với với giá trị cũ, nếu trùng thì sẽ không cập nhật lại. Việc này tránh khỏi việc recompose lại như trên.
-
+Trong khi đó, với **derivedStateOf**, Compose sẽ kiểm tra lại giá trị mới và so sánh với giá trị cũ. Nếu giá trị mới giống với giá trị cũ, nó sẽ không gây ra việc cập nhật lại, từ đó tránh được việc recompose không cần thiết như trên.
 ## Tổng kết
 
 Khi xem qua ví dụ trên, có thể một vài người sẽ nghĩ chuyện này đơn giản và không quan trọng. Tuy nhiên trong thực thế, với các dự án lớn thì việc sử dụng thích hợp giữa derivedStateOf VS. remember(key) sẽ giảm thiểu sự giật lag đi rất nhiều.
