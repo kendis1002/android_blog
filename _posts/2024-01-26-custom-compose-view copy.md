@@ -4,7 +4,7 @@ current: post
 cover: assets/images/collect-flow.png
 navigation: True
 title: derivedStateOf vs remember Chúng nó rất khác nhau đấy
-date: 2025-02-28 10:18:00
+date: 2024-01-26 10:18:00
 tags: compose
 class: post-template
 subclass: 'post'
