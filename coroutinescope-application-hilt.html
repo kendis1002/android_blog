@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Document Settings -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Base Meta -->
+    <!-- dynamically fixing the title for tag/author pages -->
+
+
+
+    <title>Tạo 1 ứng dụng CoroutineScope sử dụng Hilt</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Styles'n'Scripts -->
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/screen.css" />
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/screen.edited.css" />
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/syntax.css" />
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+
+    <!--[if IE]>
+        <style>
+            p, ol, ul{
+                width: 100%;
+            }
+            blockquote{
+                width: 100%;
+            }
+        </style>
+    <![endif]-->
+    
+    <!-- This tag outputs SEO meta+structured data and other important settings -->
+    <meta name="description" content="Một nơi mà tôi và bạn có thể học Android cùng nhau" />
+    <link rel="shortcut icon" href="/android_blog/assets/images/favicon.png" type="image/png" />
+    <link rel="canonical" href="/android_blog/coroutinescope-application-hilt" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+     <!--title below is coming from _includes/dynamic_title-->
+    <meta property="og:site_name" content="Kendis .dev" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Tạo 1 ứng dụng CoroutineScope sử dụng Hilt" />
+    <meta property="og:description" content="Inject một CoroutineScope phạm vi mức Application sử dụng Hilt. Theo các best practice của coroutine, bạn có thể cần phải inject một CoroutineScope phạm vi ứng dụng vào một số class để khởi chạy các coroutine mới theo vòng đời ứng dụng hoặc để làm cho một số công" />
+    <meta property="og:url" content="/android_blog/coroutinescope-application-hilt" />
+    <meta property="og:image" content="/android_blog/assets/images/viewmodelscope.png" />
+    <meta property="article:publisher" content="https://www.facebook.com/kendis1002" />
+    <meta property="article:author" content="https://www.facebook.com/kendis1002" />
+    <meta property="article:published_time" content="2024-01-20T10:18:00+00:00" />
+    <meta property="article:modified_time" content="2024-01-20T10:18:00+00:00" />
+    <meta property="article:tag" content="Coroutine" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tạo 1 ứng dụng CoroutineScope sử dụng Hilt" />
+    <meta name="twitter:description" content="Inject một CoroutineScope phạm vi mức Application sử dụng Hilt. Theo các best practice của coroutine, bạn có thể cần phải inject một CoroutineScope phạm vi ứng dụng vào một số class để khởi chạy các coroutine mới theo vòng đời ứng dụng hoặc để làm cho một số công" />
+    <meta name="twitter:url" content="/android_blog/" />
+    <meta name="twitter:image" content="/android_blog/assets/images/viewmodelscope.png" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Kendis .dev" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="Coroutine" />
+    <meta name="twitter:site" content="@false" />
+    <meta name="twitter:creator" content="@false" />
+    <meta property="og:image:width" content="1400" />
+    <meta property="og:image:height" content="933" />
+
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Website",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Kendis .dev",
+        "logo": "/android_blog/false"
+    },
+    "url": "/android_blog/coroutinescope-application-hilt",
+    "image": {
+        "@type": "ImageObject",
+        "url": "/android_blog/assets/images/viewmodelscope.png",
+        "width": 2000,
+        "height": 666
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/android_blog/coroutinescope-application-hilt"
+    },
+    "description": "Inject một CoroutineScope phạm vi mức Application sử dụng Hilt. Theo các best practice của coroutine, bạn có thể cần phải inject một CoroutineScope phạm vi ứng dụng vào một số class để khởi chạy các coroutine mới theo vòng đời ứng dụng hoặc để làm cho một số công"
+}
+    </script>
+
+    <!-- <script type="text/javascript" src="https://demo.ghost.io/public/ghost-sdk.min.js?v=724281a32e"></script>
+    <script type="text/javascript">
+    ghost.init({
+    	clientId: "ghost-frontend",
+    	clientSecret: "f84a07a72b17"
+    });
+    </script> -->
+
+    <meta name="generator" content="Jekyll 3.6.2" />
+    <link rel="alternate" type="application/rss+xml" title="Tạo 1 ứng dụng CoroutineScope sử dụng Hilt" href="/android_blog/feed.xml" />
+
+
+</head>
+<body class="post-template">
+
+    <div class="site-wrapper">
+        <!-- All the main content gets inserted here, index.hbs, post.hbs, etc -->
+        <!-- default -->
+
+<!-- The tag above means: insert everything in this file
+into the {body} of the default.hbs template -->
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+        
+            
+                <a class="site-nav-logo" href="/android_blog/">Kendis .dev</a>
+            
+        
+        
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="/android_blog/">Trang chủ</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/architecture/">Architecture</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/coroutine/">Coroutine</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/hilt/">Hilt</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/compose/">Compose</a></li>
+    <li class="nav-about" role="menuitem"><a href="/android_blog/about/">Tôi</a></li>
+</ul>
+
+        
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+            
+                <a class="social-link social-link-fb" href="https://facebook.com/kendis1002" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+</a>
+            
+            
+        </div>
+        
+            <a class="subscribe-button" href="#subscribe">Theo dõi</a>
+        
+    </div>
+</nav>
+
+    </div>
+</header>
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full  tag-coroutine tag-hilt post ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime="20 January 2024">20 January 2024</time>
+                </section>
+                
+                    
+                        
+                        <span class="post-card-tags">
+                            <a href='/android_blog/tag/coroutine/' style="color:white;">COROUTINE</a>
+                        </span>
+                        
+                    
+                        
+                        <span class="post-card-tags">
+                            <a href='/android_blog/tag/hilt/' style="color:white;">HILT</a>
+                        </span>
+                        
+                    
+                
+                <h1 class="post-full-title">Tạo 1 ứng dụng CoroutineScope sử dụng Hilt</h1>
+            </header>
+
+            
+            <figure class="post-full-image" style="background-image: url(/android_blog/assets/images/viewmodelscope.png)">
+            </figure>
+            
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown">
+                    <p>Inject một CoroutineScope phạm vi mức Application sử dụng Hilt.</p>
+
+<p>Theo các best practice của coroutine, bạn có thể cần phải inject một CoroutineScope phạm vi ứng dụng vào một số class để khởi chạy các coroutine mới theo vòng đời ứng dụng hoặc để làm cho một số công việc tồn tại lâu hơn scope của người gọi.</p>
+
+<p>Trong bài viết này, bạn sẽ học cách tạo một <code class="language-plaintext highlighter-rouge">CoroutineScope</code> có phạm vi ứng dụng bằng cách sử dụng Hilt, và cách inject nó như một phụ thuộc. Để cải thiện cách chúng ta làm việc với Coroutines, chúng ta sẽ xem cách tiêm các <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code> khác nhau và thay thế cài đặt của chúng trong các bài test.</p>
+
+<h2 id="dependency-injection-bằng-tay">Dependency injection bằng tay</h2>
+<p>Để tạo một <code class="language-plaintext highlighter-rouge">CoroutineScope</code> phạm vi ứng dụng theo các nguyên tắc DI mà không cần sử dụng thư viện nào, bạn thường sẽ thêm một biến mới vào lớp ứng dụng của bạn với một phiên bản của <code class="language-plaintext highlighter-rouge">CoroutineScope</code>. Cùng một instance sẽ được truyền thủ công khi tạo các đối tượng khác.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyRepository</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">externalScope</span><span class="p">:</span> <span class="nc">CoroutineScope</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">MyApplication</span> <span class="p">:</span> <span class="nc">Application</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="c1">// Application-scoped types that any class in the app could access</span>
+    <span class="c1">// using the applicationContext.</span>
+    <span class="kd">val</span> <span class="py">applicationScope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">()</span> <span class="p">+</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">myRepository</span> <span class="p">=</span> <span class="nc">MyRepository</span><span class="p">(</span><span class="n">applicationScope</span><span class="p">)</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Vì không có cách đáng tin cậy nào để biết khi <code class="language-plaintext highlighter-rouge">Application</code> bị hủy bỏ trong Android, bạn không cần gọi <code class="language-plaintext highlighter-rouge">applicationScope.cancel()</code> bằng tay vì phạm vi và tất cả công việc đang diễn ra sẽ bị hủy bỏ khi application process kết thúc.</p>
+
+<p>Một lựa chọn tốt hơn cho việc làm điều này bằng cách thủ công là tạo một class <code class="language-plaintext highlighter-rouge">ApplicationContainer</code> chứa các loại có phạm vi ứng dụng. Điều này giúp phân chia vấn đề vì những lớp Container này chịu trách nhiệm về:</p>
+
+<ul>
+  <li>xử lý logic về cách xây dựng các loại cụ thể,</li>
+  <li>giữ các instance có loại là container-scoped, và</li>
+  <li>trả về các instance của các loại đã được phạm vi hoá và không được phạm vi hoá.</li>
+</ul>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ApplicationDiContainer</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">applicationScope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">()</span> <span class="p">+</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">myRepository</span> <span class="p">=</span> <span class="nc">MyRepository</span><span class="p">(</span><span class="n">applicationScope</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">MyApplication</span> <span class="p">:</span> <span class="nc">Application</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">applicationDiContainer</span> <span class="p">=</span> <span class="nc">ApplicationDiContainer</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>Chú ý: Một container luôn trả về cùng một instance của một loại được giới hạn, và luôn trả về một instance khác cho các loại không được phạm vi hoá. Việc giới hạn các loại vào container tốn kém vì đối tượng được giới hạn vẫn tồn tại trong bộ nhớ cho đến khi thành phần bị hủy, vì vậy chỉ giới hạn những gì thực sự cần thiết.</p>
+</blockquote>
+
+<p>Trong ví dụ <code class="language-plaintext highlighter-rouge">ApplicationDiContainer</code> ở trên, tất cả các loại đều được phạm vi hóa. Nếu <code class="language-plaintext highlighter-rouge">MyRepository</code> không cần phải được phạm vi hóa cho ứng dụng, chúng ta sẽ có:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ApplicationDiContainer</span> <span class="p">{</span>
+    <span class="c1">// Scoped type. Same instance is always returned</span>
+    <span class="kd">val</span> <span class="py">applicationScope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">()</span> <span class="p">+</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span><span class="p">)</span>
+
+    <span class="c1">// Unscoped type. Always returns a different instance</span>
+    <span class="k">fun</span> <span class="nf">getMyRepository</span><span class="p">():</span> <span class="nc">MyRepository</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">MyRepository</span><span class="p">(</span><span class="n">applicationScope</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="sử-dụng-hilt-trong-ứng-dụng">Sử dụng Hilt trong ứng dụng</h2>
+
+<p>Hilt tạo ra những gì bạn có thể thấy trong <code class="language-plaintext highlighter-rouge">ApplicationDiContainer</code> (và hơn thế nữa!) lúc biên dịch bằng cách sử dụng các annotation. Hơn nữa, Hilt cung cấp các container cho <a href="https://developer.android.com/training/dependency-injection/hilt-android#generated-components">hầu hết các class Android</a> framework không chỉ mỗi class Application.</p>
+
+<p>Để thiết lập Hilt trong ứng dụng của bạn và tạo container cho lớp <code class="language-plaintext highlighter-rouge">Application</code>, hãy đánh dấu class <code class="language-plaintext highlighter-rouge">Application</code> của bạn bằng <code class="language-plaintext highlighter-rouge">@HiltAndroidApp</code>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@HiltAndroidApp</span>
+<span class="kd">class</span> <span class="nc">MyApplication</span> <span class="p">:</span> <span class="nc">Application</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>Với điều này, ApplicationDiContainer đã sẵn sàng để sử dụng. Chúng ta chỉ cần cho Hilt biết cách cung cấp các instance của các loại khác nhau.</p>
+
+<blockquote>
+  <p>Lưu ý: Trong Hilt, các class Container được tham chiếu như là Components. Container liên kết với class <code class="language-plaintext highlighter-rouge">Application</code> được gọi là <code class="language-plaintext highlighter-rouge">SingletonComponent</code>. Kiểm tra danh sách tất cả <a href="https://developer.android.com/training/dependency-injection/hilt-android#generated-components">các Hilt component có sẵn</a>.</p>
+</blockquote>
+
+<h2 id="inject-thông-qua-constructor">Inject thông qua constructor</h2>
+
+<p>Construction injection là cách dễ nhất để cho Hilt biết cách cung cấp các instance của một loại nếu chúng ta có quyền truy cập vào constructor của một class, chúng ta chỉ cần đánh dấu constructor bằng <code class="language-plaintext highlighter-rouge">@Inject</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Singleton</span> <span class="c1">// Scopes this type to the SingletonComponent</span>
+<span class="kd">class</span> <span class="nc">MyRepository</span> <span class="nd">@Inject</span> <span class="k">constructor</span><span class="p">(</span>
+   <span class="k">private</span> <span class="kd">val</span> <span class="py">externalScope</span><span class="p">:</span> <span class="nc">CoroutineScope</span>
+<span class="p">)</span> <span class="p">{</span> 
+    <span class="cm">/* ... */</span> 
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Điều này cho biết với Hilt rằng để cung cấp một instance của class <code class="language-plaintext highlighter-rouge">MyRepository</code>, cần phải truyền một instance của <code class="language-plaintext highlighter-rouge">CoroutineScope</code> như một phụ thuộc. Hilt tạo code tại thời điểm biên dịch để đảm bảo các phụ thuộc được đáp ứng và truyền vào khi tạo một instance của một loại hoặc thông báo lỗi nếu nó không có đủ thông tin. <code class="language-plaintext highlighter-rouge">@Singleton</code> được sử dụng để phạm vi hoá lớp này đến <code class="language-plaintext highlighter-rouge">SingletonContainer</code>.</p>
+
+<p>Tại thời điểm này, Hilt không biết cách đáp ứng sự phụ thuộc <code class="language-plaintext highlighter-rouge">CoroutineScope</code> vì chúng ta chưa nói cho Hilt biết làm thế nào. Các phần tiếp theo sẽ giải thích cách chúng ta có thể cho Hilt biết cần truyền gì làm phụ thuộc.</p>
+
+<blockquote>
+  <p>Lưu ý: Hilt cung cấp một annotation khác nhau cho các loại scope cho các thành phần Hilt khác nhau. Hãy kiểm tra <a href="https://developer.android.com/training/dependency-injection/hilt-android#component-scopes">danh sách tất cả các phạm vi thành phần có sẵn</a>.</p>
+</blockquote>
+
+<h2 id="bindings">Bindings</h2>
+
+<p><strong><em>Binding</em></strong> là một thuật ngữ phổ biến trong Hilt để chỉ thông tin mà Hilt biết về cách cung cấp các instance của một loại như một phụ thuộc. Chúng ta có thể nói rằng chúng ta đã thêm một binding vào Hilt với chú thích <code class="language-plaintext highlighter-rouge">@Inject</code> của đoạn code ở trên.</p>
+
+<p>Các binding qua <a href="https://developer.android.com/training/dependency-injection/hilt-android#component-hierarchy">cấu trúc thành phần của Hilt</a>. Các binding có sẵn trong <code class="language-plaintext highlighter-rouge">SingletonComponent</code> cũng có sẵn trong <code class="language-plaintext highlighter-rouge">ActivityComponent</code>.</p>
+
+<p>Các binding cho các loại không được phạm vi hoá (một ví dụ có thể là đoạn code <code class="language-plaintext highlighter-rouge">MyRepository</code> ở trên nếu nó không được ghi chú với <code class="language-plaintext highlighter-rouge">@Singleton</code>), có sẵn trong tất cả các thành phần của Hilt. Các binding được phạm vi hoá cho một thành phần, như <code class="language-plaintext highlighter-rouge">MyRepository</code> được ghi chú với <code class="language-plaintext highlighter-rouge">@Singleton</code>, có sẵn cho thành phần có phạm vi và các thành phần ở dưới nó trong cấu trúc.</p>
+
+<h2 id="cung-cấp-loại-với-module">Cung cấp loại với module</h2>
+
+<p>Như đã đề cập ở trên, chúng ta cần cho Hilt biết cách để đáp ứng mối phụ thuộc vào <code class="language-plaintext highlighter-rouge">CoroutineScope</code>. Tuy nhiên, <code class="language-plaintext highlighter-rouge">CoroutineScope</code> là một loại interface đến từ một thư viện bên ngoài, vì vậy chúng ta không thể sử dụng việc tiêm (injection) thông qua constructor như trước đây với class <code class="language-plaintext highlighter-rouge">MyRepository</code>. Phương pháp thay thế là cho Hilt biết code nào để chạy khi cung cấp một instance của một loại sử dụng Modules:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@InstallIn</span><span class="p">(</span><span class="nc">SingletonComponent</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="nd">@Module</span>
+<span class="kd">object</span> <span class="nc">CoroutinesScopesModule</span> <span class="p">{</span>
+
+    <span class="nd">@Singleton</span> <span class="c1">// Provide always the same instance </span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesCoroutineScope</span><span class="p">():</span> <span class="nc">CoroutineScope</span> <span class="p">{</span>
+        <span class="c1">// Run this code when providing an instance of CoroutineScope</span>
+        <span class="k">return</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">()</span> <span class="p">+</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Phương thức <code class="language-plaintext highlighter-rouge">@Provides</code> được chú thích bằng <code class="language-plaintext highlighter-rouge">@Singleton</code> để Hilt luôn trả về cùng một instance của CoroutineScope đó. Điều này bởi vì bất kỳ công việc nào cần tuân theo vòng đời của <code class="language-plaintext highlighter-rouge">Application</code> đều nên được tạo ra bằng cùng một instance của <code class="language-plaintext highlighter-rouge">CoroutineScope</code> tuân theo vòng đời của <code class="language-plaintext highlighter-rouge">Application</code>.</p>
+
+<p>Các module Hilt được chú thích bằng <code class="language-plaintext highlighter-rouge">@InstallIn</code> để chỉ ra rằng việc binding được cài đặt trong thành phần Hilt nào (và các thành phần bên dưới trong cấu trúc phân cấp). Trong trường hợp của chúng ta, vì <code class="language-plaintext highlighter-rouge">CoroutineScope</code> của ứng dụng cần thiết cho <code class="language-plaintext highlighter-rouge">MyRepository</code> được phạm vi hoá trong <code class="language-plaintext highlighter-rouge">SingletonComponent</code>, việc binding này cũng cần được cài đặt trong <code class="language-plaintext highlighter-rouge">SingletonComponent</code>.</p>
+
+<p>Trong cách nói của Hilt, chúng ta có thể nói rằng chúng ta đã thêm một <code class="language-plaintext highlighter-rouge">CoroutineScope</code> binding, vì bây giờ, Hilt biết cách cung cấp các instance của <code class="language-plaintext highlighter-rouge">CoroutineScope</code>.</p>
+
+<p>Tuy nhiên, đoạn code trên có thể được cải thiện. Hardcoding dispatchers là một thói quen không tốt trong coroutines, chúng ta nên inject chúng để <strong>làm cho chúng có thể cấu hình và làm cho việc kiểm thử dễ dàng hơn</strong>. Theo đoạn code trước đó, chúng ta có thể tạo một module Hilt mới để cho phép nó biết Dispatcher nào để inject cho mỗi trường hợp: main, default và IO.</p>
+
+<h2 id="cung-cấp-các-implementation-cho-coroutinedispatcher">Cung cấp các implementation cho CoroutineDispatcher</h2>
+
+<p>Chúng ta phải cung cấp các implementation khác nhau cho cùng một loại là <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code>. Nói cách khác, chúng ta cần các ràng buộc khác nhau cho cùng một loại.</p>
+
+<p>Chúng ta sử dụng <a href="https://developer.android.com/training/dependency-injection/hilt-android#multiple-bindings">qualifier (bộ điều kiện)</a> để cho Hilt biết rằng mỗi lần nào sử dụng binding hoặc implementation nào. Qualifier chỉ là các annotation mà bạn và Hilt sử dụng để xác định các binding cụ thể. Hãy tạo một qualifier cho mỗi implementation của CoroutineDispatcher:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// CoroutinesQualifiers.kt file</span>
+
+<span class="nd">@Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Qualifier</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">DefaultDispatcher</span>
+
+<span class="nd">@Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Qualifier</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">IoDispatcher</span>
+
+<span class="nd">@Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Qualifier</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">MainDispatcher</span>
+
+<span class="nd">@Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">BINARY</span><span class="p">)</span>
+<span class="nd">@Qualifier</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">MainImmediateDispatcher</span>
+</code></pre></div></div>
+
+<p>Sau đó, những qualifier này chú thích các phương thức <code class="language-plaintext highlighter-rouge">@Provides</code> khác nhau để xác định một binding cụ thể trong các mô-đun Hilt. Bộ qualifier <code class="language-plaintext highlighter-rouge">@DefaultDispatcher</code> chú thích phương thức trả về bộ điều phối mặc định, và cứ thế.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@InstallIn</span><span class="p">(</span><span class="nc">SingletonComponent</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="nd">@Module</span>
+<span class="kd">object</span> <span class="nc">CoroutinesDispatchersModule</span> <span class="p">{</span>
+
+    <span class="nd">@DefaultDispatcher</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesDefaultDispatcher</span><span class="p">():</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span>
+
+    <span class="nd">@IoDispatcher</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesIoDispatcher</span><span class="p">():</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">IO</span>
+
+    <span class="nd">@MainDispatcher</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesMainDispatcher</span><span class="p">():</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Main</span>
+
+    <span class="nd">@MainImmediateDispatcher</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesMainImmediateDispatcher</span><span class="p">():</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Main</span><span class="p">.</span><span class="n">immediate</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Lưu ý rằng những <code class="language-plaintext highlighter-rouge">CoroutineDispatchers</code> này không cần được phạm vi hoá trong <code class="language-plaintext highlighter-rouge">SingletonComponent</code>. Mỗi khi cần các phụ thuộc này, Hilt gọi phương thức <code class="language-plaintext highlighter-rouge">@Provides</code> và trả về <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code> tương ứng. Tạo lại vẫn OK.</p>
+
+<h2 id="cung-cấp-coroutine-scope-ở-mức-application">Cung cấp Coroutine Scope ở mức Application</h2>
+
+<p>Để loại bỏ <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code> được hard code từ <code class="language-plaintext highlighter-rouge">CoroutineScope</code> ở mức Application trước đó của chúng ta, chúng ta cần inject vào dispatcher mặc định do Hilt cung cấp. Để làm điều đó, chúng ta có thể truyền vào loại mà chúng ta muốn inject, <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code>, bằng cách sử dụng qualifier tương ứng, <code class="language-plaintext highlighter-rouge">@DefaultDispatcher</code>, như một phụ thuộc trong phương thức cung cấp <code class="language-plaintext highlighter-rouge">CoroutineScope</code> của ứng dụng.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@InstallIn</span><span class="p">(</span><span class="nc">SingletonComponent</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="nd">@Module</span>
+<span class="kd">object</span> <span class="nc">CoroutinesScopesModule</span> <span class="p">{</span>
+
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesCoroutineScope</span><span class="p">(</span>
+        <span class="nd">@DefaultDispatcher</span> <span class="n">defaultDispatcher</span><span class="p">:</span> <span class="nc">CoroutineDispatcher</span>
+    <span class="p">):</span> <span class="nc">CoroutineScope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">()</span> <span class="p">+</span> <span class="n">defaultDispatcher</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Vì Hilt có nhiều ràng buộc cho loại <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code>, chúng ta làm rõ nó sử dụng chính xác loại nào bằng cách sử dụng chú thích <code class="language-plaintext highlighter-rouge">@DefaultDispatcher</code> khi <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code> được sử dụng làm phụ thuộc.</p>
+
+<h2 id="qualifier-cho-applicationscope">Qualifier cho ApplicationScope</h2>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Qualifier</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">ApplicationScope</span>
+
+<span class="nd">@InstallIn</span><span class="p">(</span><span class="nc">SingletonComponent</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="nd">@Module</span>
+<span class="kd">object</span> <span class="nc">CoroutinesScopesModule</span> <span class="p">{</span>
+
+    <span class="nd">@Singleton</span>
+    <span class="nd">@ApplicationScope</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesCoroutineScope</span><span class="p">(</span>
+        <span class="nd">@DefaultDispatcher</span> <span class="n">defaultDispatcher</span><span class="p">:</span> <span class="nc">CoroutineDispatcher</span>
+    <span class="p">):</span> <span class="nc">CoroutineScope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">()</span> <span class="p">+</span> <span class="n">defaultDispatcher</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Vì <code class="language-plaintext highlighter-rouge">MyRepository</code> phụ thuộc vào scope này, rõ ràng scope bên ngoài nào sử dụng như triển khai sau:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">MyRepository</span> <span class="nd">@Inject</span> <span class="k">constructor</span><span class="p">(</span>
+    <span class="nd">@ApplicationScope</span> <span class="k">private</span> <span class="kd">val</span> <span class="py">externalScope</span><span class="p">:</span> <span class="nc">CoroutineScope</span>
+<span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="thay-thế-replacing-dispatchers-cho-instrumentation-test">Thay thế Replacing Dispatchers cho instrumentation test</h2>
+
+<p>Chúng ta đã nói trước đó rằng chúng ta nên inject dispatchers để làm cho việc kiểm thử dễ dàng hơn và có hoàn toàn kiểm soát được những gì đang xảy ra. Đối với các bài kiểm tra instrumentation, chúng ta muốn làm cho Espresso đợi cho đến khi các coroutines hoàn thành.</p>
+
+<p>Thay vì tạo một <code class="language-plaintext highlighter-rouge">CoroutineDispatcher</code> tùy chỉnh với một số Espresso Idling resource để khiến nó chờ các coroutine hoàn thành, chúng ta có thể tận dụng API AsyncTask. Mặc dù AsyncTask đã bị loại bỏ trong Android API 30, Espresso kết nối vào thread pool của nó để kiểm tra tính trống rỗng. Do đó, bất kỳ coroutine nào cần được thực thi trong một luồng nền có thể được thực thi trong thread pool của AsyncTask.</p>
+
+<p>Sử dụng API <code class="language-plaintext highlighter-rouge">TestInstallIn</code> của Hilt để Hilt cung cấp một cách triển khai khác của một loại trong các bài test. Tương tự như cách chúng ta cung cấp các Dispatcher khác nhau ở trên, chúng ta có thể tạo một file mới trong gói <code class="language-plaintext highlighter-rouge">androidTest</code> để cung cấp các triển khai khác nhau cho những Dispatcher đó.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// androidTest/projectPath/TestCoroutinesDispatchersModule.kt file</span>
+
+<span class="nd">@TestInstallIn</span><span class="p">(</span>
+    <span class="n">components</span> <span class="p">=</span> <span class="p">[</span><span class="nc">SingletonComponent</span><span class="o">::</span><span class="k">class</span><span class="p">],</span>
+    <span class="n">replaces</span> <span class="p">=</span> <span class="p">[</span><span class="nc">CoroutinesDispatchersModule</span><span class="o">::</span><span class="k">class</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="nd">@Module</span>
+<span class="kd">object</span> <span class="nc">TestCoroutinesDispatchersModule</span> <span class="p">{</span>
+
+    <span class="nd">@DefaultDispatcher</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesDefaultDispatcher</span><span class="p">():</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span>
+        <span class="nc">AsyncTask</span><span class="p">.</span><span class="nc">THREAD_POOL_EXECUTOR</span><span class="p">.</span><span class="nf">asCoroutineDispatcher</span><span class="p">()</span>
+
+    <span class="nd">@IoDispatcher</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesIoDispatcher</span><span class="p">():</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span>
+        <span class="nc">AsyncTask</span><span class="p">.</span><span class="nc">THREAD_POOL_EXECUTOR</span><span class="p">.</span><span class="nf">asCoroutineDispatcher</span><span class="p">()</span>
+
+    <span class="nd">@MainDispatcher</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesMainDispatcher</span><span class="p">():</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Main</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Với mã code ở trên, chúng ta đang làm cho Hilt “quên” <code class="language-plaintext highlighter-rouge">CoroutinesDispatchersModule</code> được sử dụng trong production code trong các bài test. Module đó sẽ được thay thế bằng <code class="language-plaintext highlighter-rouge">TestCoroutinesDispatchersModule</code> sử dụng thread pool của <code class="language-plaintext highlighter-rouge">Async Task</code> cho công việc cần xảy ra ở nền, và <code class="language-plaintext highlighter-rouge">Dispatchers.Main</code> cho công việc cần xảy ra trên luồng chính mà Espresso cũng đang chờ.</p>
+
+<p>Để biết thêm thông tin về kiểm thử, hãy xem <a href="https://developer.android.com/training/dependency-injection/hilt-testing">hướng dẫn kiểm thử của Hilt</a>.</p>
+
+<p>Ví dụ của bài viết trên được áp dụng tại <a href="https://github.com/kendis1002/AN_realtime_location_flow_hilt">đây</a> các bạn có thể tham khảo.</p>
+
+<hr />
+
+<p>Trong bài viết này, bạn đã học cách tạo một CoroutineScope có phạm vi ứng dụng bằng cách sử dụng Hilt, inject nó như một phụ thuộc, inject các trường hợp khác nhau của CoroutineDispatcher, và thay thế các triển khai của chúng trong các bài kiểm tra.</p>
+
+
+                </div>
+            </section>
+
+            <!-- Email subscribe form at the bottom of the page -->
+            
+                <!-- <section class="subscribe-form">
+                    <h3 class="subscribe-form-title">Subscribe to Kendis .dev</h3>
+                    <p>Get the latest posts delivered right to your inbox</p>
+                    <form method="post" action="/subscribe/" class="">
+    <input class="confirm" type="hidden" name="confirm"  /><input class="location" type="hidden" name="location"  /><input class="referrer" type="hidden" name="referrer"  />
+
+    <div class="form-group">
+        <input class="subscribe-email" type="email" name="email"  placeholder="youremail@example.com" />
+    </div>
+    <button class="" type="submit" disabled><span>Subscribe</span></button>
+    <script type="text/javascript">(function(g,h,o,s,t){h[o]('.location')[s]=h[o]('.location')[s] || g.location.href;h[o]('.referrer')[s]=h[o]('.referrer')[s] || h.referrer;})(window,document,'querySelector','value');</script>
+</form>
+
+                </section> -->
+            
+
+            <footer class="post-full-footer">
+                <!-- Everything inside the #author tags pulls data from the author -->
+                <!-- #author-->
+                
+                    
+                        <section class="author-card">
+                            
+                                <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="kendis" />
+                            
+                            <section class="author-card-content">
+                                <h4 class="author-card-name"><a href="/android_blog/author/kendis">Kendis</a></h4>
+                                
+                                    <p>Một thằng lập trình viên Android</p>
+                                
+                            </section>
+                        </section>
+                        <div class="post-full-footer-right">
+                            <a class="author-card-button" href="/android_blog/author/kendis">Read More</a>
+                        </div>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <!-- /author  -->
+            </footer>
+
+            <!-- If you use Disqus comments, just uncomment this block.
+            The only thing you need to change is "test-apkdzgmqhj" - which
+            should be replaced with your own Disqus site-id. -->
+            
+
+        </article>
+
+    </div>
+</main>
+
+<!-- Links to Previous/Next posts -->
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+            
+                
+                
+                
+                
+                    <article class="read-next-card"
+                        
+                            style="background-image: url(/android_blog/assets/images/blog-cover.jpg)"
+                        
+                    >
+                        <header class="read-next-card-header">
+                            <small class="read-next-card-header-sitetitle">&mdash; Kendis .dev &mdash;</small>
+                            
+                                <h3 class="read-next-card-header-title"><a href="/android_blog/tag/coroutine/">Coroutine</a></h3>
+                            
+                        </header>
+                        <div class="read-next-divider"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14.5s2 3 5 3 5.5-2.463 5.5-5.5S21 6.5 18 6.5c-5 0-7 11-12 11C2.962 17.5.5 15.037.5 12S3 6.5 6 6.5s4.5 3.5 4.5 3.5"/></svg>
+</div>
+                        <div class="read-next-card-content">
+                            <ul>
+                                
+                                
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/better-way-to-collect-flow">Cách an toàn để thu thập các flow ở Android UI</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/coroutines-cancellation-exceptions">Exception trong coroutine</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/3-mistakes-should-avoid-compose">3 lỗi cần phải tránh khi sử dụng Jetpack Compose</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                    
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                    
+                                  
+                                
+                            </ul>
+                        </div>
+                        <footer class="read-next-card-footer">
+                            <a href="/android_blog/tag/coroutine/">
+                                
+                                    Xem tất cả 5 post  →
+                                
+                            </a>
+                        </footer>
+                    </article>
+                
+            
+
+            <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/android_blog/better-way-to-collect-flow">
+                <div class="post-card-image" style="background-image: url(/android_blog/assets/images/collect-flow.png)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/android_blog/better-way-to-collect-flow">
+                <header class="post-card-header">
+                    
+                        
+                            
+                                <span class="post-card-tags">Coroutine</span>
+                            
+                        
+                    
+
+                    <h2 class="post-card-title">Cách an toàn để thu thập các flow ở Android UI</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p>Học cách sử dụng API Lifecycle.repeatOnLifecycle để an toàn thu thập flows ở tầng UI trên Android.
+
+</p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                        
+                        <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="Kendis" />
+                        
+                        <span class="post-card-author">
+                            <a href="/android_blog/author/kendis/">Kendis</a>
+                        </span>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      11 phút
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+            <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/android_blog/hilt-stable">
+                <div class="post-card-image" style="background-image: url(/android_blog/assets/images/hilt-stable.png)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/android_blog/hilt-stable">
+                <header class="post-card-header">
+                    
+                        
+                            
+                                <span class="post-card-tags">Hilt</span>
+                            
+                        
+                    
+
+                    <h2 class="post-card-title">Hilt đã stable. Đơn giản hoá việc dependency injection trong Android</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p>Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.
+
+</p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                        
+                        <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="Kendis" />
+                        
+                        <span class="post-card-author">
+                            <a href="/android_blog/author/kendis/">Kendis</a>
+                        </span>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      5 phút
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+        </div>
+    </div>
+</aside>
+
+<!-- Floating header which appears on-scroll, included from includes/floating-header.hbs -->
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="/android_blog/">
+            
+                <img src="/android_blog/assets/images/favicon.png" alt="Kendis .dev icon" />
+            
+            <span>Kendis .dev</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">&mdash;</span>
+    <div class="floating-header-title">Tạo 1 ứng dụng CoroutineScope sử dụng Hilt</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Chia sẻ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=T%E1%BA%A1o+1+%E1%BB%A9ng+d%E1%BB%A5ng+CoroutineScope+s%E1%BB%AD+d%E1%BB%A5ng+Hilt&amp;url=https://kendis1002.github.io/android_blog/coroutinescope-application-hilt"
+            onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://kendis1002.github.io/android_blog/coroutinescope-application-hilt"
+            onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+<!-- /post -->
+
+<!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs -->
+
+
+        <!-- Previous/next page links - displayed on every page -->
+        
+
+        <!-- The footer at the very bottom of the screen -->
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="/android_blog/">Kendis .dev</a> &copy; 2025</section>
+                <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> &
+                    <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> using
+                    <a href="https://github.com/jekyllt/jasper2" target="_blank" rel="noopener">Jasper2</a></section>
+                <nav class="site-footer-nav">
+                    <a href="/android_blog/">Latest Posts</a>
+                    <a href="https://facebook.com/kendis1002" target="_blank" rel="noopener">Facebook</a>
+                    
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- The big email subscribe modal content -->
+    
+        <div id="subscribe" class="subscribe-overlay">
+            <a class="subscribe-overlay-close" href="#"></a>
+            <div class="subscribe-overlay-content">
+                
+                <h1 class="subscribe-overlay-title">Subscribe to Kendis .dev</h1>
+                <p class="subscribe-overlay-description">Stay up to date! Get all the latest &amp; greatest posts delivered straight to your inbox</p>
+                <!-- <form method="post" action="/subscribe/" class="">
+    <input class="confirm" type="hidden" name="confirm"  /><input class="location" type="hidden" name="location"  /><input class="referrer" type="hidden" name="referrer"  />
+
+    <div class="form-group">
+        <input class="subscribe-email" type="email" name="email"  placeholder="youremail@example.com" />
+    </div>
+    <button class="" type="submit" disabled><span>Subscribe</span></button>
+    <script type="text/javascript">(function(g,h,o,s,t){h[o]('.location')[s]=h[o]('.location')[s] || g.location.href;h[o]('.referrer')[s]=h[o]('.referrer')[s] || h.referrer;})(window,document,'querySelector','value');</script>
+</form>
+ -->
+            </div>
+        </div>
+    
+
+    <!-- highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.10.0/components/prism-abap.min.js"></script>
+    <script>$(document).ready(function() {
+      $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
+    });</script>
+
+    <!-- jQuery + Fitvids, which makes all video embeds responsive -->
+    <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="/android_blog/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://demo.ghost.io/assets/js/jquery.fitvids.js?v=724281a32e"></script>
+
+
+    <!-- Paginator increased to "infinit" in _config.yml -->
+    <!-- if paginator.posts  -->
+    <!-- <script>
+        var maxPages = parseInt('');
+    </script>
+    <script src="/android_blog/assets/js/infinitescroll.js"></script> -->
+    <!-- /endif -->
+
+    
+
+
+    <!-- Add Google Analytics  -->
+    <!-- Google Analytics Tracking code -->
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-69281367-1', 'auto');
+  ga('send', 'pageview');
+
+ </script>
+
+
+    <!-- The #block helper will pull in data from the #contentFor other template files. In this case, there's some JavaScript which we only want to use in post.hbs, but it needs to be included down here, after jQuery has already loaded. -->
+    
+        <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+    
+
+    <!-- Ghost outputs important scripts and data with this tag - it should always be the very last thing before the closing body tag -->
+    <!-- ghost_foot -->
+
+</body>
+</html>

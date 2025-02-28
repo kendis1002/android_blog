@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Document Settings -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Base Meta -->
+    <!-- dynamically fixing the title for tag/author pages -->
+
+
+
+    <title>Best practices về coroutine trong Android</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Styles'n'Scripts -->
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/screen.css" />
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/screen.edited.css" />
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/syntax.css" />
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+
+    <!--[if IE]>
+        <style>
+            p, ol, ul{
+                width: 100%;
+            }
+            blockquote{
+                width: 100%;
+            }
+        </style>
+    <![endif]-->
+    
+    <!-- This tag outputs SEO meta+structured data and other important settings -->
+    <meta name="description" content="Một nơi mà tôi và bạn có thể học Android cùng nhau" />
+    <link rel="shortcut icon" href="/android_blog/assets/images/favicon.png" type="image/png" />
+    <link rel="canonical" href="/android_blog/best-practices-for-coroutines-in-android" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+     <!--title below is coming from _includes/dynamic_title-->
+    <meta property="og:site_name" content="Kendis .dev" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Best practices về coroutine trong Android" />
+    <meta property="og:description" content="Dưới đây sẽ là một số best practices có tác động tích cực bằng cách làm cho ứng dụng của bạn trở nên có khả năng mở rộng và test tốt hơn khi sử dụng coroutines. Inject Dispatchers Không nên hard code Dispatchers khi tạo coroutines mới hoặc gọi với" />
+    <meta property="og:url" content="/android_blog/best-practices-for-coroutines-in-android" />
+    <meta property="og:image" content="/android_blog/assets/images/viewmodelscope.png" />
+    <meta property="article:publisher" content="https://www.facebook.com/kendis1002" />
+    <meta property="article:author" content="https://www.facebook.com/kendis1002" />
+    <meta property="article:published_time" content="2023-12-08T10:18:00+00:00" />
+    <meta property="article:modified_time" content="2023-12-08T10:18:00+00:00" />
+    <meta property="article:tag" content="Coroutine" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Best practices về coroutine trong Android" />
+    <meta name="twitter:description" content="Dưới đây sẽ là một số best practices có tác động tích cực bằng cách làm cho ứng dụng của bạn trở nên có khả năng mở rộng và test tốt hơn khi sử dụng coroutines. Inject Dispatchers Không nên hard code Dispatchers khi tạo coroutines mới hoặc gọi với" />
+    <meta name="twitter:url" content="/android_blog/" />
+    <meta name="twitter:image" content="/android_blog/assets/images/viewmodelscope.png" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Kendis .dev" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="Coroutine" />
+    <meta name="twitter:site" content="@false" />
+    <meta name="twitter:creator" content="@false" />
+    <meta property="og:image:width" content="1400" />
+    <meta property="og:image:height" content="933" />
+
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Website",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Kendis .dev",
+        "logo": "/android_blog/false"
+    },
+    "url": "/android_blog/best-practices-for-coroutines-in-android",
+    "image": {
+        "@type": "ImageObject",
+        "url": "/android_blog/assets/images/viewmodelscope.png",
+        "width": 2000,
+        "height": 666
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/android_blog/best-practices-for-coroutines-in-android"
+    },
+    "description": "Dưới đây sẽ là một số best practices có tác động tích cực bằng cách làm cho ứng dụng của bạn trở nên có khả năng mở rộng và test tốt hơn khi sử dụng coroutines. Inject Dispatchers Không nên hard code Dispatchers khi tạo coroutines mới hoặc gọi với"
+}
+    </script>
+
+    <!-- <script type="text/javascript" src="https://demo.ghost.io/public/ghost-sdk.min.js?v=724281a32e"></script>
+    <script type="text/javascript">
+    ghost.init({
+    	clientId: "ghost-frontend",
+    	clientSecret: "f84a07a72b17"
+    });
+    </script> -->
+
+    <meta name="generator" content="Jekyll 3.6.2" />
+    <link rel="alternate" type="application/rss+xml" title="Best practices về coroutine trong Android" href="/android_blog/feed.xml" />
+
+
+</head>
+<body class="post-template">
+
+    <div class="site-wrapper">
+        <!-- All the main content gets inserted here, index.hbs, post.hbs, etc -->
+        <!-- default -->
+
+<!-- The tag above means: insert everything in this file
+into the {body} of the default.hbs template -->
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+        
+            
+                <a class="site-nav-logo" href="/android_blog/">Kendis .dev</a>
+            
+        
+        
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="/android_blog/">Trang chủ</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/architecture/">Architecture</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/coroutine/">Coroutine</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/hilt/">Hilt</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/compose/">Compose</a></li>
+    <li class="nav-about" role="menuitem"><a href="/android_blog/about/">Tôi</a></li>
+</ul>
+
+        
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+            
+                <a class="social-link social-link-fb" href="https://facebook.com/kendis1002" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+</a>
+            
+            
+        </div>
+        
+            <a class="subscribe-button" href="#subscribe">Theo dõi</a>
+        
+    </div>
+</nav>
+
+    </div>
+</header>
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full  tag-coroutine post ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime=" 8 December 2023"> 8 December 2023</time>
+                </section>
+                
+                    
+                        
+                        <span class="post-card-tags">
+                            <a href='/android_blog/tag/coroutine/' style="color:white;">COROUTINE</a>
+                        </span>
+                        
+                    
+                
+                <h1 class="post-full-title">Best practices về coroutine trong Android</h1>
+            </header>
+
+            
+            <figure class="post-full-image" style="background-image: url(/android_blog/assets/images/viewmodelscope.png)">
+            </figure>
+            
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown">
+                    <p>Dưới đây sẽ là một số best practices có tác động tích cực bằng cách làm cho ứng dụng của bạn trở nên có khả năng mở rộng và test tốt hơn khi sử dụng <strong>coroutines</strong>.</p>
+
+<h2 id="inject-dispatchers">Inject Dispatchers</h2>
+<p>Không nên hard code <strong>Dispatchers</strong> khi tạo <strong>coroutines</strong> mới hoặc gọi với <strong>withContext</strong>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// DO inject Dispatchers</span>
+<span class="kd">class</span> <span class="nc">NewsRepository</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">defaultDispatcher</span><span class="p">:</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">loadNews</span><span class="p">()</span> <span class="p">=</span> <span class="nf">withContext</span><span class="p">(</span><span class="n">defaultDispatcher</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// DO NOT hardcode Dispatchers</span>
+<span class="kd">class</span> <span class="nc">NewsRepository</span> <span class="p">{</span>
+    <span class="c1">// DO NOT use Dispatchers.Default directly, inject it instead</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">loadNews</span><span class="p">()</span> <span class="p">=</span> <span class="nf">withContext</span><span class="p">(</span><span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Mô hình dependency injection này làm cho việc test dễ dàng hơn vì bạn có thể thay thế các dispatchers đó trong các unit test và  instrumentation test bằng một test dispatcher để làm cho các bài test của bạn trở nên xác định hơn.</p>
+
+<blockquote>
+  <p>Lưu ý: Thuộc tính <strong>viewModelScope</strong> của các class <strong>ViewModel</strong> được hard code với Dispatchers.Main. Thay thế nó trong bài test bằng cách gọi <strong>Dispatchers.setMain</strong> và truyền vào một test dispatcher.</p>
+</blockquote>
+
+<h2 id="các-function-suspend-phải-được-an-toàn-khi-gọi-từ-main-thread">Các function suspend phải được an toàn khi gọi từ main thread.</h2>
+
+<p>Các function suspend nên được an toàn trên main thread, có nghĩa là chúng an toàn khi gọi từ main thread. Nếu một class đang thực hiện các hoạt động chặn lâu dài trong một coroutine, nó chịu trách nhiệm di chuyển thực thi khỏi main thread bằng cách sử dụng <strong>withContext</strong>. Điều này áp dụng cho tất cả các class trong ứng dụng của bạn, bất kể phần của kiến trúc mà class đó thuộc về.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">NewsRepository</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">ioDispatcher</span><span class="p">:</span> <span class="nc">CoroutineDispatcher</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="c1">// As this operation is manually retrieving the news from the server</span>
+    <span class="c1">// using a blocking HttpURLConnection, it needs to move the execution</span>
+    <span class="c1">// to an IO dispatcher to make it main-safe</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">fetchLatestNews</span><span class="p">():</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">Article</span><span class="p">&gt;</span> <span class="p">{</span>
+        <span class="nf">withContext</span><span class="p">(</span><span class="n">ioDispatcher</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... implementation ... */</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// This use case fetches the latest news and the associated author.</span>
+<span class="kd">class</span> <span class="nc">GetLatestNewsWithAuthorsUseCase</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">newsRepository</span><span class="p">:</span> <span class="nc">NewsRepository</span><span class="p">,</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">authorsRepository</span><span class="p">:</span> <span class="nc">AuthorsRepository</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// This method doesn't need to worry about moving the execution of the</span>
+    <span class="c1">// coroutine to a different thread as newsRepository is main-safe.</span>
+    <span class="c1">// The work done in the coroutine is lightweight as it only creates</span>
+    <span class="c1">// a list and add elements to it</span>
+    <span class="k">suspend</span> <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">():</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">ArticleWithAuthor</span><span class="p">&gt;</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">news</span> <span class="p">=</span> <span class="n">newsRepository</span><span class="p">.</span><span class="nf">fetchLatestNews</span><span class="p">()</span>
+
+        <span class="kd">val</span> <span class="py">response</span><span class="p">:</span> <span class="nc">List</span><span class="p">&lt;</span><span class="nc">ArticleWithAuthor</span><span class="p">&gt;</span> <span class="p">=</span> <span class="nf">mutableEmptyList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">article</span> <span class="k">in</span> <span class="n">news</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">val</span> <span class="py">author</span> <span class="p">=</span> <span class="n">authorsRepository</span><span class="p">.</span><span class="nf">getAuthor</span><span class="p">(</span><span class="n">article</span><span class="p">.</span><span class="n">author</span><span class="p">)</span>
+            <span class="n">response</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="nc">ArticleWithAuthor</span><span class="p">(</span><span class="n">article</span><span class="p">,</span> <span class="n">author</span><span class="p">))</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nc">Result</span><span class="p">.</span><span class="nc">Success</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Pattern này làm cho ứng dụng của bạn trở nên có khả năng mở rộng hơn, vì các class gọi các function suspend không cần phải lo lắng về <strong>Dispatcher</strong> nào được sử dụng cho loại công việc nào. Trách nhiệm này thuộc về class thực hiện công việc.</p>
+
+<h2 id="viewmodel-nên-tạo-các-coroutine">ViewModel nên tạo các coroutine</h2>
+
+<p>Các class <strong>ViewModel</strong> nên được ưu tiên tạo coroutines thay vì đưa ra các function suspend để thực hiện business logic. Các function suspend trong <strong>ViewModel</strong> có thể hữu ích nếu thay vì đưa <strong>state</strong> bằng cách sử dụng một luồng data, chỉ cần phát ra một giá trị duy nhất.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// DO create coroutines in the ViewModel</span>
+<span class="kd">class</span> <span class="nc">LatestNewsViewModel</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">getLatestNewsWithAuthors</span><span class="p">:</span> <span class="nc">GetLatestNewsWithAuthorsUseCase</span>
+<span class="p">)</span> <span class="p">:</span> <span class="nc">ViewModel</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">_uiState</span> <span class="p">=</span> <span class="nc">MutableStateFlow</span><span class="p">&lt;</span><span class="nc">LatestNewsUiState</span><span class="p">&gt;(</span><span class="nc">LatestNewsUiState</span><span class="p">.</span><span class="nc">Loading</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">uiState</span><span class="p">:</span> <span class="nc">StateFlow</span><span class="p">&lt;</span><span class="nc">LatestNewsUiState</span><span class="p">&gt;</span> <span class="p">=</span> <span class="n">_uiState</span>
+
+    <span class="k">fun</span> <span class="nf">loadNews</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">viewModelScope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+            <span class="kd">val</span> <span class="py">latestNewsWithAuthors</span> <span class="p">=</span> <span class="nf">getLatestNewsWithAuthors</span><span class="p">()</span>
+            <span class="n">_uiState</span><span class="p">.</span><span class="n">value</span> <span class="p">=</span> <span class="nc">LatestNewsUiState</span><span class="p">.</span><span class="nc">Success</span><span class="p">(</span><span class="n">latestNewsWithAuthors</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Prefer observable state rather than suspend functions from the ViewModel</span>
+<span class="kd">class</span> <span class="nc">LatestNewsViewModel</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">getLatestNewsWithAuthors</span><span class="p">:</span> <span class="nc">GetLatestNewsWithAuthorsUseCase</span>
+<span class="p">)</span> <span class="p">:</span> <span class="nc">ViewModel</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// DO NOT do this. News would probably need to be refreshed as well.</span>
+    <span class="c1">// Instead of exposing a single value with a suspend function, news should</span>
+    <span class="c1">// be exposed using a stream of data as in the code snippet above.</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">loadNews</span><span class="p">()</span> <span class="p">=</span> <span class="nf">getLatestNewsWithAuthors</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Các Views không nên trực tiếp kích hoạt bất kỳ coroutine nào để thực hiện business logic. Thay vào đó, chuyển trách nhiệm đó cho <strong>ViewModel</strong>. Điều này làm cho business logic của bạn dễ test hơn vì object ViewModel có thể được unit test, thay vì sử dụng các bài test instrumentation cần thiết để test views.</p>
+
+<p>Ngoài ra, coroutine của bạn sẽ tự động tồn tại qua các thay đổi cấu hình nếu công việc được bắt đầu trong <strong>viewModelScope</strong>. Nếu bạn tạo coroutines bằng cách sử dụng <strong>lifecycleScope</strong> thay thế, bạn sẽ phải xử lý điều đó một cách thủ công. Nếu coroutine cần tồn tại qua scope của <strong>ViewModel</strong>, hãy xem phần <a href="https://developer.android.com/kotlin/coroutines/coroutines-best-practices#create-coroutines-data-layer">Tạo coroutines trong layer business và data</a>.</p>
+
+<blockquote>
+  <p>Lưu ý: Views nên kích hoạt coroutines để thực hiện logic liên quan đến UI. Ví dụ, tải một hình ảnh từ Internet hoặc định dạng một string.</p>
+</blockquote>
+
+<h2 id="đừng-xuất-mutable-type">Đừng xuất mutable type</h2>
+
+<p>Ưu tiên việc xuất các kiểu không thay đổi (<strong>immutable</strong>) cho các class khác. Như vậy, tất cả các thay đổi đối với kiểu có thể thay đổi (<strong>mutable</strong>) sẽ được tập trung trong một class, giúp dễ dàng debug khi có vấn đề xảy ra.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// DO expose immutable types</span>
+<span class="kd">class</span> <span class="nc">LatestNewsViewModel</span> <span class="p">:</span> <span class="nc">ViewModel</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">_uiState</span> <span class="p">=</span> <span class="nc">MutableStateFlow</span><span class="p">(</span><span class="nc">LatestNewsUiState</span><span class="p">.</span><span class="nc">Loading</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">uiState</span><span class="p">:</span> <span class="nc">StateFlow</span><span class="p">&lt;</span><span class="nc">LatestNewsUiState</span><span class="p">&gt;</span> <span class="p">=</span> <span class="n">_uiState</span>
+
+    <span class="cm">/* ... */</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">LatestNewsViewModel</span> <span class="p">:</span> <span class="nc">ViewModel</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="c1">// DO NOT expose mutable types</span>
+    <span class="kd">val</span> <span class="py">uiState</span> <span class="p">=</span> <span class="nc">MutableStateFlow</span><span class="p">(</span><span class="nc">LatestNewsUiState</span><span class="p">.</span><span class="nc">Loading</span><span class="p">)</span>
+
+    <span class="cm">/* ... */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="data-and-business-layer-nên-xuất-các-function-suspend-và-flows">Data and business layer nên xuất các function suspend và flows.</h2>
+
+<p>Các class trong data and business layer thông thường xuất các function để thực hiện cuộc gọi một lần hoặc để được thông báo về thay đổi dữ liệu theo thời gian. Các class trong những class đó nên xuất các hàm <strong>suspend để thực hiện cuộc gọi một lần</strong> và <strong>Flow để thông báo về thay đổi dữ liệu</strong>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Classes in the data and business layer expose</span>
+<span class="c1">// either suspend functions or Flows</span>
+<span class="kd">class</span> <span class="nc">ExampleRepository</span> <span class="p">{</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">makeNetworkRequest</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">getExamples</span><span class="p">():</span> <span class="nc">Flow</span><span class="p">&lt;</span><span class="nc">Example</span><span class="p">&gt;</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Best practice này làm nơi gọi, thường là presentation layer có khả năng kiểm soát vòng đời và việc thực thi của công việc diễn ra trong những class đó, và có thể hủy bỏ khi cần thiết.</p>
+
+<h2 id="tạo-coroutine-ở-trong-business-và-data-layer">Tạo coroutine ở trong business và data layer</h2>
+
+<p>Đối với các class ở data class hoặc business class cần tạo coroutines vì các lý do khác nhau, có các lựa chọn khác nhau.</p>
+
+<p>Nếu công việc cần thực hiện trong những coroutine này chỉ quan trọng khi người dùng hiện diện trên màn hình hiện tại, nó nên tuân theo vòng đời của người gọi. Trong hầu hết các trường hợp, người gọi sẽ là ViewModel, và cuộc gọi sẽ bị hủy bỏ khi người dùng chuyển đi khỏi màn hình và ViewModel bị xóa. Trong trường hợp này, nên sử dụng <strong>coroutineScope</strong> hoặc <strong>supervisorScope</strong>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">GetAllBooksAndAuthorsUseCase</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">booksRepository</span><span class="p">:</span> <span class="nc">BooksRepository</span><span class="p">,</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">authorsRepository</span><span class="p">:</span> <span class="nc">AuthorsRepository</span><span class="p">,</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">getBookAndAuthors</span><span class="p">():</span> <span class="nc">BookAndAuthors</span> <span class="p">{</span>
+        <span class="c1">// In parallel, fetch books and authors and return when both requests</span>
+        <span class="c1">// complete and the data is ready</span>
+        <span class="k">return</span> <span class="nf">coroutineScope</span> <span class="p">{</span>
+            <span class="kd">val</span> <span class="py">books</span> <span class="p">=</span> <span class="nf">async</span> <span class="p">{</span> <span class="n">booksRepository</span><span class="p">.</span><span class="nf">getAllBooks</span><span class="p">()</span> <span class="p">}</span>
+            <span class="kd">val</span> <span class="py">authors</span> <span class="p">=</span> <span class="nf">async</span> <span class="p">{</span> <span class="n">authorsRepository</span><span class="p">.</span><span class="nf">getAllAuthors</span><span class="p">()</span> <span class="p">}</span>
+            <span class="nc">BookAndAuthors</span><span class="p">(</span><span class="n">books</span><span class="p">.</span><span class="nf">await</span><span class="p">(),</span> <span class="n">authors</span><span class="p">.</span><span class="nf">await</span><span class="p">())</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Nếu công việc cần thực hiện liên quan đến việc mở ứng dụng và công việc không liên quan đến màn hình cụ thể, thì công việc đó nên tồn tại qua vòng đời của người gọi. Đối với tình huống này, nên sử dụng một <strong>CoroutineScope</strong> bên ngoài như được giải thích trong bài viết blog <a href="https://medium.com/androiddevelopers/coroutines-patterns-for-work-that-shouldnt-be-cancelled-e26c40f142ad">Coroutines &amp; Patterns for work that shouldn’t be cancelled</a>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ArticlesRepository</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">articlesDataSource</span><span class="p">:</span> <span class="nc">ArticlesDataSource</span><span class="p">,</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">externalScope</span><span class="p">:</span> <span class="nc">CoroutineScope</span><span class="p">,</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// As we want to complete bookmarking the article even if the user moves</span>
+    <span class="c1">// away from the screen, the work is done creating a new coroutine</span>
+    <span class="c1">// from an external scope</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">bookmarkArticle</span><span class="p">(</span><span class="n">article</span><span class="p">:</span> <span class="nc">Article</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">externalScope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span> <span class="n">articlesDataSource</span><span class="p">.</span><span class="nf">bookmarkArticle</span><span class="p">(</span><span class="n">article</span><span class="p">)</span> <span class="p">}</span>
+            <span class="p">.</span><span class="nf">join</span><span class="p">()</span> <span class="c1">// Wait for the coroutine to complete</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>externalScope</strong> nên được tạo và quản lý bởi một class tồn tại lâu hơn màn hình hiện tại, nó có thể được quản lý bởi class <strong>Application</strong> hoặc một <strong>ViewModel</strong> có scope liên quan đến navigation graph.</p>
+
+<h2 id="tránh-sử-dụng-globalscope">Tránh sử dụng GlobalScope</h2>
+
+<p>Điều này tương tự như thực hành tốt Inject Dispatchers. Bằng cách sử dụng <strong>GlobalScope</strong>, bạn đang hard code CoroutineScope mà một class sử dụng, mang theo một số nhược điểm:</p>
+
+<ul>
+  <li>
+    <p>Thúc đẩy việc hard code giá trị. Nếu bạn hard code GlobalScope, bạn có thể cũng đang hard code Dispatchers.</p>
+  </li>
+  <li>
+    <p>Làm cho việc test trở nên rất khó khăn vì code của bạn được thực thi trong một scope không kiểm soát, bạn sẽ không thể kiểm soát quá trình thực thi của nó.</p>
+  </li>
+  <li>
+    <p>Bạn không thể có một <strong>CoroutineContext</strong> chung để thực thi cho tất cả các coroutines được xây dựng vào scope chính nó.</p>
+  </li>
+</ul>
+
+<p>Thay vào đó, hãy xem xét việc tiêm một <strong>CoroutineScope</strong> cho công việc cần tồn tại qua scope hiện tại. Kiểm tra phần <a href="https://developer.android.com/kotlin/coroutines/coroutines-best-practices#create-coroutines-data-layer">Tạo coroutines trong class kinh doanh và dữ liệu</a> để tìm hiểu thêm về chủ đề này.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// DO inject an external scope instead of using GlobalScope.</span>
+<span class="c1">// GlobalScope can be used indirectly. Here as a default parameter makes sense.</span>
+<span class="kd">class</span> <span class="nc">ArticlesRepository</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">articlesDataSource</span><span class="p">:</span> <span class="nc">ArticlesDataSource</span><span class="p">,</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">externalScope</span><span class="p">:</span> <span class="nc">CoroutineScope</span> <span class="p">=</span> <span class="nc">GlobalScope</span><span class="p">,</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">defaultDispatcher</span><span class="p">:</span> <span class="nc">CoroutineDispatcher</span> <span class="p">=</span> <span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">Default</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// As we want to complete bookmarking the article even if the user moves</span>
+    <span class="c1">// away from the screen, the work is done creating a new coroutine</span>
+    <span class="c1">// from an external scope</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">bookmarkArticle</span><span class="p">(</span><span class="n">article</span><span class="p">:</span> <span class="nc">Article</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">externalScope</span><span class="p">.</span><span class="nf">launch</span><span class="p">(</span><span class="n">defaultDispatcher</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">articlesDataSource</span><span class="p">.</span><span class="nf">bookmarkArticle</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
+        <span class="p">}</span>
+            <span class="p">.</span><span class="nf">join</span><span class="p">()</span> <span class="c1">// Wait for the coroutine to complete</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// DO NOT use GlobalScope directly</span>
+<span class="kd">class</span> <span class="nc">ArticlesRepository</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">articlesDataSource</span><span class="p">:</span> <span class="nc">ArticlesDataSource</span><span class="p">,</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// As we want to complete bookmarking the article even if the user moves away</span>
+    <span class="c1">// from the screen, the work is done creating a new coroutine with GlobalScope</span>
+    <span class="k">suspend</span> <span class="k">fun</span> <span class="nf">bookmarkArticle</span><span class="p">(</span><span class="n">article</span><span class="p">:</span> <span class="nc">Article</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nc">GlobalScope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+            <span class="n">articlesDataSource</span><span class="p">.</span><span class="nf">bookmarkArticle</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
+        <span class="p">}</span>
+            <span class="p">.</span><span class="nf">join</span><span class="p">()</span> <span class="c1">// Wait for the coroutine to complete</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Tìm hiểu thêm về GlobalScope và các lựa chọn thay thế trong bài blog <a href="https://medium.com/androiddevelopers/coroutines-patterns-for-work-that-shouldnt-be-cancelled-e26c40f142ad">Coroutines &amp; Patterns for work that shouldn’t be cancelled</a>.</p>
+
+<h2 id="làm-coroutine-của-bạn-có-thể-huỷ-được">Làm coroutine của bạn có thể huỷ được</h2>
+
+<p>Sự hủy bỏ trong coroutines là hợp tác, có nghĩa là khi một <strong>Job</strong> của coroutine bị hủy bỏ, coroutine đó không bị hủy bỏ cho đến khi nó tạm dừng hoặc kiểm tra để biết có hủy bỏ hay không. Nếu bạn thực hiện các suspend action trong một coroutine, hãy đảm bảo rằng coroutine đó có thể bị hủy bỏ.</p>
+
+<p>Ví dụ, nếu bạn đang đọc nhiều tệp từ đĩa, trước khi bắt đầu đọc mỗi tệp, kiểm tra xem coroutine có bị hủy bỏ hay không. Một cách để kiểm tra hủy bỏ là bằng cách gọi function <strong>ensureActive</strong>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">someScope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">file</span> <span class="k">in</span> <span class="n">files</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">ensureActive</span><span class="p">()</span> <span class="c1">// Check for cancellation</span>
+        <span class="nf">readFile</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>Tất cả các suspend function từ <strong>kotlinx.coroutines</strong> như <strong>withContext</strong> và <strong>delay</strong> đều có thể bị hủy bỏ. Nếu <strong>coroutine</strong> của bạn gọi chúng, bạn không cần phải thực hiện bất kỳ công việc bổ sung nào.</p>
+
+<p>Để biết thêm thông tin về việc hủy bỏ trong coroutines, hãy kiểm tra bài blog <a href="https://medium.com/androiddevelopers/cancellation-in-coroutines-aa6b90163629">Cancellation in coroutines</a>.</p>
+
+<h2 id="cẩn-thận-với-exception">Cẩn thận với exception</h2>
+
+<p>Exception không được xử lý được throw ra trong coroutines có thể làm cho ứng dụng của bạn bị crash. Nếu có khả năng xảy ra exception, hãy bắt chúng trong thân của bất kỳ coroutine nào được tạo với <strong>viewModelScope</strong> hoặc <strong>lifecycleScope</strong>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">LoginViewModel</span><span class="p">(</span>
+    <span class="k">private</span> <span class="kd">val</span> <span class="py">loginRepository</span><span class="p">:</span> <span class="nc">LoginRepository</span>
+<span class="p">)</span> <span class="p">:</span> <span class="nc">ViewModel</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">fun</span> <span class="nf">login</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="nc">String</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">viewModelScope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+            <span class="k">try</span> <span class="p">{</span>
+                <span class="n">loginRepository</span><span class="p">.</span><span class="nf">login</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+                <span class="c1">// Notify view user logged in successfully</span>
+            <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">exception</span><span class="p">:</span> <span class="nc">IOException</span><span class="p">)</span> <span class="p">{</span>
+                <span class="c1">// Notify view login attempt failed</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Để biết thêm thông tin, hãy kiểm tra bài viết blog <a href="https://medium.com/androiddevelopers/exceptions-in-coroutines-ce8da1ec060c">Exceptions in coroutines</a> hoặc xem phần <a href="https://kotlinlang.org/docs/exception-handling.html">xử lý ngoại lệ trong coroutines</a> trong tài liệu Kotlin.</p>
+
+<h2 id="thêm-về-coroutine">Thêm về coroutine</h2>
+
+<p>Để xem thêm về coroutine, nhấn ở <a href="https://developer.android.com/kotlin/coroutines/additional-resources">đây</a>.</p>
+
+                </div>
+            </section>
+
+            <!-- Email subscribe form at the bottom of the page -->
+            
+                <!-- <section class="subscribe-form">
+                    <h3 class="subscribe-form-title">Subscribe to Kendis .dev</h3>
+                    <p>Get the latest posts delivered right to your inbox</p>
+                    <form method="post" action="/subscribe/" class="">
+    <input class="confirm" type="hidden" name="confirm"  /><input class="location" type="hidden" name="location"  /><input class="referrer" type="hidden" name="referrer"  />
+
+    <div class="form-group">
+        <input class="subscribe-email" type="email" name="email"  placeholder="youremail@example.com" />
+    </div>
+    <button class="" type="submit" disabled><span>Subscribe</span></button>
+    <script type="text/javascript">(function(g,h,o,s,t){h[o]('.location')[s]=h[o]('.location')[s] || g.location.href;h[o]('.referrer')[s]=h[o]('.referrer')[s] || h.referrer;})(window,document,'querySelector','value');</script>
+</form>
+
+                </section> -->
+            
+
+            <footer class="post-full-footer">
+                <!-- Everything inside the #author tags pulls data from the author -->
+                <!-- #author-->
+                
+                    
+                        <section class="author-card">
+                            
+                                <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="kendis" />
+                            
+                            <section class="author-card-content">
+                                <h4 class="author-card-name"><a href="/android_blog/author/kendis">Kendis</a></h4>
+                                
+                                    <p>Một thằng lập trình viên Android</p>
+                                
+                            </section>
+                        </section>
+                        <div class="post-full-footer-right">
+                            <a class="author-card-button" href="/android_blog/author/kendis">Read More</a>
+                        </div>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <!-- /author  -->
+            </footer>
+
+            <!-- If you use Disqus comments, just uncomment this block.
+            The only thing you need to change is "test-apkdzgmqhj" - which
+            should be replaced with your own Disqus site-id. -->
+            
+
+        </article>
+
+    </div>
+</main>
+
+<!-- Links to Previous/Next posts -->
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+            
+                
+                
+                
+                
+                    <article class="read-next-card"
+                        
+                            style="background-image: url(/android_blog/assets/images/blog-cover.jpg)"
+                        
+                    >
+                        <header class="read-next-card-header">
+                            <small class="read-next-card-header-sitetitle">&mdash; Kendis .dev &mdash;</small>
+                            
+                                <h3 class="read-next-card-header-title"><a href="/android_blog/tag/coroutine/">Coroutine</a></h3>
+                            
+                        </header>
+                        <div class="read-next-divider"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14.5s2 3 5 3 5.5-2.463 5.5-5.5S21 6.5 18 6.5c-5 0-7 11-12 11C2.962 17.5.5 15.037.5 12S3 6.5 6 6.5s4.5 3.5 4.5 3.5"/></svg>
+</div>
+                        <div class="read-next-card-content">
+                            <ul>
+                                
+                                
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/better-way-to-collect-flow">Cách an toàn để thu thập các flow ở Android UI</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/coroutinescope-application-hilt">Tạo 1 ứng dụng CoroutineScope sử dụng Hilt</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/coroutines-cancellation-exceptions">Exception trong coroutine</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                    
+                                  
+                                
+                            </ul>
+                        </div>
+                        <footer class="read-next-card-footer">
+                            <a href="/android_blog/tag/coroutine/">
+                                
+                                    Xem tất cả 5 post  →
+                                
+                            </a>
+                        </footer>
+                    </article>
+                
+            
+
+            <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/android_blog/3-mistakes-should-avoid-compose">
+                <div class="post-card-image" style="background-image: url(/android_blog/assets/images/viewmodelscope.png)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/android_blog/3-mistakes-should-avoid-compose">
+                <header class="post-card-header">
+                    
+                        
+                            
+                                <span class="post-card-tags">Coroutine</span>
+                            
+                        
+                    
+
+                    <h2 class="post-card-title">3 lỗi cần phải tránh khi sử dụng Jetpack Compose</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p>Dưới đây sẽ là một số lỗi cần phải tránh khi sử dụng Jetpack Compose.
+
+</p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                        
+                        <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="Kendis" />
+                        
+                        <span class="post-card-author">
+                            <a href="/android_blog/author/kendis/">Kendis</a>
+                        </span>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      5 phút
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+            <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/android_blog/viewmodel-events-antipatterns">
+                <div class="post-card-image" style="background-image: url(/android_blog/assets/images/viewmodelscope.png)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/android_blog/viewmodel-events-antipatterns">
+                <header class="post-card-header">
+                    
+                        
+                            
+                                <span class="post-card-tags">Architecture</span>
+                            
+                        
+                    
+
+                    <h2 class="post-card-title">Antipattern - ViewModel event 1 lần</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p>Bạn nên xử lý ngay các event ViewModel bằng cách update UI state
+
+</p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                        
+                        <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="Kendis" />
+                        
+                        <span class="post-card-author">
+                            <a href="/android_blog/author/kendis/">Kendis</a>
+                        </span>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      10 phút
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+        </div>
+    </div>
+</aside>
+
+<!-- Floating header which appears on-scroll, included from includes/floating-header.hbs -->
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="/android_blog/">
+            
+                <img src="/android_blog/assets/images/favicon.png" alt="Kendis .dev icon" />
+            
+            <span>Kendis .dev</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">&mdash;</span>
+    <div class="floating-header-title">Best practices về coroutine trong Android</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Chia sẻ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Best+practices+v%E1%BB%81+coroutine+trong+Android&amp;url=https://kendis1002.github.io/android_blog/best-practices-for-coroutines-in-android"
+            onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://kendis1002.github.io/android_blog/best-practices-for-coroutines-in-android"
+            onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+<!-- /post -->
+
+<!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs -->
+
+
+        <!-- Previous/next page links - displayed on every page -->
+        
+
+        <!-- The footer at the very bottom of the screen -->
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="/android_blog/">Kendis .dev</a> &copy; 2025</section>
+                <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> &
+                    <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> using
+                    <a href="https://github.com/jekyllt/jasper2" target="_blank" rel="noopener">Jasper2</a></section>
+                <nav class="site-footer-nav">
+                    <a href="/android_blog/">Latest Posts</a>
+                    <a href="https://facebook.com/kendis1002" target="_blank" rel="noopener">Facebook</a>
+                    
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- The big email subscribe modal content -->
+    
+        <div id="subscribe" class="subscribe-overlay">
+            <a class="subscribe-overlay-close" href="#"></a>
+            <div class="subscribe-overlay-content">
+                
+                <h1 class="subscribe-overlay-title">Subscribe to Kendis .dev</h1>
+                <p class="subscribe-overlay-description">Stay up to date! Get all the latest &amp; greatest posts delivered straight to your inbox</p>
+                <!-- <form method="post" action="/subscribe/" class="">
+    <input class="confirm" type="hidden" name="confirm"  /><input class="location" type="hidden" name="location"  /><input class="referrer" type="hidden" name="referrer"  />
+
+    <div class="form-group">
+        <input class="subscribe-email" type="email" name="email"  placeholder="youremail@example.com" />
+    </div>
+    <button class="" type="submit" disabled><span>Subscribe</span></button>
+    <script type="text/javascript">(function(g,h,o,s,t){h[o]('.location')[s]=h[o]('.location')[s] || g.location.href;h[o]('.referrer')[s]=h[o]('.referrer')[s] || h.referrer;})(window,document,'querySelector','value');</script>
+</form>
+ -->
+            </div>
+        </div>
+    
+
+    <!-- highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.10.0/components/prism-abap.min.js"></script>
+    <script>$(document).ready(function() {
+      $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
+    });</script>
+
+    <!-- jQuery + Fitvids, which makes all video embeds responsive -->
+    <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="/android_blog/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://demo.ghost.io/assets/js/jquery.fitvids.js?v=724281a32e"></script>
+
+
+    <!-- Paginator increased to "infinit" in _config.yml -->
+    <!-- if paginator.posts  -->
+    <!-- <script>
+        var maxPages = parseInt('');
+    </script>
+    <script src="/android_blog/assets/js/infinitescroll.js"></script> -->
+    <!-- /endif -->
+
+    
+
+
+    <!-- Add Google Analytics  -->
+    <!-- Google Analytics Tracking code -->
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-69281367-1', 'auto');
+  ga('send', 'pageview');
+
+ </script>
+
+
+    <!-- The #block helper will pull in data from the #contentFor other template files. In this case, there's some JavaScript which we only want to use in post.hbs, but it needs to be included down here, after jQuery has already loaded. -->
+    
+        <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+    
+
+    <!-- Ghost outputs important scripts and data with this tag - it should always be the very last thing before the closing body tag -->
+    <!-- ghost_foot -->
+
+</body>
+</html>

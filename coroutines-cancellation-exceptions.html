@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Document Settings -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Base Meta -->
+    <!-- dynamically fixing the title for tag/author pages -->
+
+
+
+    <title>Exception trong coroutine</title>
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Styles'n'Scripts -->
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/screen.css" />
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/screen.edited.css" />
+    <link rel="stylesheet" type="text/css" href="/android_blog/assets/built/syntax.css" />
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <style>.hljs { background: none; }</style>
+
+    <!--[if IE]>
+        <style>
+            p, ol, ul{
+                width: 100%;
+            }
+            blockquote{
+                width: 100%;
+            }
+        </style>
+    <![endif]-->
+    
+    <!-- This tag outputs SEO meta+structured data and other important settings -->
+    <meta name="description" content="Một nơi mà tôi và bạn có thể học Android cùng nhau" />
+    <link rel="shortcut icon" href="/android_blog/assets/images/favicon.png" type="image/png" />
+    <link rel="canonical" href="/android_blog/coroutines-cancellation-exceptions" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+     <!--title below is coming from _includes/dynamic_title-->
+    <meta property="og:site_name" content="Kendis .dev" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Exception trong coroutine" />
+    <meta property="og:description" content="Tất cả những điều bạn cần biết về exception trong coroutine Chúng ta, những nhà phát triển, thường dành rất nhiều thời gian để trau chuốt cho con đường thuận khi phát triển ứng dụng. Tuy nhiên, cũng quan trọng không kém là cung cấp trải nghiệm người dùng tốt" />
+    <meta property="og:url" content="/android_blog/coroutines-cancellation-exceptions" />
+    <meta property="og:image" content="/android_blog/assets/images/coroutine-cancellation-exceptions.png" />
+    <meta property="article:publisher" content="https://www.facebook.com/kendis1002" />
+    <meta property="article:author" content="https://www.facebook.com/kendis1002" />
+    <meta property="article:published_time" content="2023-12-14T10:18:00+00:00" />
+    <meta property="article:modified_time" content="2023-12-14T10:18:00+00:00" />
+    <meta property="article:tag" content="Coroutine" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Exception trong coroutine" />
+    <meta name="twitter:description" content="Tất cả những điều bạn cần biết về exception trong coroutine Chúng ta, những nhà phát triển, thường dành rất nhiều thời gian để trau chuốt cho con đường thuận khi phát triển ứng dụng. Tuy nhiên, cũng quan trọng không kém là cung cấp trải nghiệm người dùng tốt" />
+    <meta name="twitter:url" content="/android_blog/" />
+    <meta name="twitter:image" content="/android_blog/assets/images/coroutine-cancellation-exceptions.png" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Kendis .dev" />
+    <meta name="twitter:label2" content="Filed under" />
+    <meta name="twitter:data2" content="Coroutine" />
+    <meta name="twitter:site" content="@false" />
+    <meta name="twitter:creator" content="@false" />
+    <meta property="og:image:width" content="1400" />
+    <meta property="og:image:height" content="933" />
+
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Website",
+    "publisher": {
+        "@type": "Organization",
+        "name": "Kendis .dev",
+        "logo": "/android_blog/false"
+    },
+    "url": "/android_blog/coroutines-cancellation-exceptions",
+    "image": {
+        "@type": "ImageObject",
+        "url": "/android_blog/assets/images/coroutine-cancellation-exceptions.png",
+        "width": 2000,
+        "height": 666
+    },
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/android_blog/coroutines-cancellation-exceptions"
+    },
+    "description": "Tất cả những điều bạn cần biết về exception trong coroutine Chúng ta, những nhà phát triển, thường dành rất nhiều thời gian để trau chuốt cho con đường thuận khi phát triển ứng dụng. Tuy nhiên, cũng quan trọng không kém là cung cấp trải nghiệm người dùng tốt"
+}
+    </script>
+
+    <!-- <script type="text/javascript" src="https://demo.ghost.io/public/ghost-sdk.min.js?v=724281a32e"></script>
+    <script type="text/javascript">
+    ghost.init({
+    	clientId: "ghost-frontend",
+    	clientSecret: "f84a07a72b17"
+    });
+    </script> -->
+
+    <meta name="generator" content="Jekyll 3.6.2" />
+    <link rel="alternate" type="application/rss+xml" title="Exception trong coroutine" href="/android_blog/feed.xml" />
+
+
+</head>
+<body class="post-template">
+
+    <div class="site-wrapper">
+        <!-- All the main content gets inserted here, index.hbs, post.hbs, etc -->
+        <!-- default -->
+
+<!-- The tag above means: insert everything in this file
+into the {body} of the default.hbs template -->
+
+<header class="site-header outer">
+    <div class="inner">
+        <nav class="site-nav">
+    <div class="site-nav-left">
+        
+            
+                <a class="site-nav-logo" href="/android_blog/">Kendis .dev</a>
+            
+        
+        
+            <ul class="nav" role="menu">
+    <li class="nav-home" role="menuitem"><a href="/android_blog/">Trang chủ</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/architecture/">Architecture</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/coroutine/">Coroutine</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/hilt/">Hilt</a></li>
+    <li class="nav-getting-started" role="menuitem"><a href="/android_blog/tag/compose/">Compose</a></li>
+    <li class="nav-about" role="menuitem"><a href="/android_blog/about/">Tôi</a></li>
+</ul>
+
+        
+    </div>
+    <div class="site-nav-right">
+        <div class="social-links">
+            
+                <a class="social-link social-link-fb" href="https://facebook.com/kendis1002" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+</a>
+            
+            
+        </div>
+        
+            <a class="subscribe-button" href="#subscribe">Theo dõi</a>
+        
+    </div>
+</nav>
+
+    </div>
+</header>
+
+<!-- Everything inside the #post tags pulls data from the post -->
+<!-- #post -->
+
+<main id="site-main" class="site-main outer" role="main">
+    <div class="inner">
+
+        <article class="post-full  tag-coroutine post ">
+
+            <header class="post-full-header">
+                <section class="post-full-meta">
+                    <time class="post-full-meta-date" datetime="14 December 2023">14 December 2023</time>
+                </section>
+                
+                    
+                        
+                        <span class="post-card-tags">
+                            <a href='/android_blog/tag/coroutine/' style="color:white;">COROUTINE</a>
+                        </span>
+                        
+                    
+                
+                <h1 class="post-full-title">Exception trong coroutine</h1>
+            </header>
+
+            
+            <figure class="post-full-image" style="background-image: url(/android_blog/assets/images/coroutine-cancellation-exceptions.png)">
+            </figure>
+            
+
+            <section class="post-full-content">
+                <div class="kg-card-markdown">
+                    <p>Tất cả những điều bạn cần biết về exception trong coroutine</p>
+
+<p>Chúng ta, những nhà phát triển, thường dành rất nhiều thời gian để trau chuốt cho con đường thuận khi phát triển ứng dụng. Tuy nhiên, cũng quan trọng không kém là cung cấp trải nghiệm người dùng tốt khi mọi thứ không diễn ra như mong đợi. Một mặt, việc thấy ứng dụng bị crash là một trải nghiệm tồi tệ đối với người dùng; mặt khác, hiển thị thông báo phù hợp cho người dùng khi một hành động không thành công là điều không thể thiếu.</p>
+
+<p>Việc xử lý exception đúng cách có ảnh hưởng rất lớn đến cách người dùng cảm nhận ứng dụng của bạn. Trong bài viết này, chúng tôi sẽ giải thích cách exception được lan truyền trong coroutines và cách bạn luôn có thể kiểm soát, bao gồm các cách khác nhau để xử lý chúng.</p>
+
+<h2 id="một-coroutine-bất-ngờ-bị-fail-làm-gì-bây-giờ-">Một coroutine bất ngờ bị fail! Làm gì bây giờ? 😱</h2>
+
+<p>Khi một coroutine gặp exception, nó sẽ truyền exception đó lên cho coroutine cha của nó! Sau đó, coroutine cha sẽ:</p>
+<ol>
+  <li>Hủy bỏ tất cả các coroutine con còn lại của nó.</li>
+  <li>Hủy bỏ chính nó.</li>
+  <li>Truyền exception lên cho coroutine cha của nó.
+Lỗi sẽ tiếp tục lan truyền cho đến gốc của hệ thống phân cấp, và tất cả các coroutine được khởi tạo bởi <code class="language-plaintext highlighter-rouge">CoroutineScope</code> cũng sẽ bị hủy bỏ.</li>
+</ol>
+
+<p><img src="assets/images/coroutine-cancellation-exceptions-1.gif" alt="Một exception trong một coroutine sẽ lan truyền xuyên suốt hệ thống phân cấp của các coroutine." title="Một exception trong một coroutine sẽ lan truyền xuyên suốt hệ thống phân cấp của các coroutine." /></p>
+
+<p>Mặc dù việc truyền tải exception có thể hợp lý trong một số trường hợp, nhưng cũng có những trường hợp khác mà chúng ta không mong muốn. Hãy tưởng tượng một <code class="language-plaintext highlighter-rouge">CoroutineScope</code> liên quan đến UI chịu trách nhiệm xử lý các tương tác của người dùng. Nếu một coroutine con ném exception, phạm vi UI sẽ bị hủy bỏ và toàn bộ thành phần UI sẽ trở nên vô phản hồi vì Scope đã bị huỷ không thể khởi động thêm coroutine nào nữa.</p>
+
+<p>Làm thế nào nếu bạn không muốn hành vi đó? Thay vào đó, bạn có thể sử dụng một triển khai khác của <code class="language-plaintext highlighter-rouge">Job</code>, cụ thể là <code class="language-plaintext highlighter-rouge">SupervisorJob</code>, trong <code class="language-plaintext highlighter-rouge">CoroutineContext</code> của <code class="language-plaintext highlighter-rouge">CoroutineScope</code> để tạo các coroutine này.</p>
+
+<h2 id="supervisorjob-sẽ-cứu-các-bạn-trong-trường-hợp-này">SupervisorJob sẽ cứu các bạn trong trường hợp này</h2>
+
+<p>Với <code class="language-plaintext highlighter-rouge">SupervisorJob</code>, lỗi con sẽ không ảnh hưởng đến các con khác. Một <code class="language-plaintext highlighter-rouge">SupervisorJob</code> sẽ không tự huỷ và cả các con còn lại của <code class="language-plaintext highlighter-rouge">SupervisorJob</code> cũng vậy. Hơn nữa, <code class="language-plaintext highlighter-rouge">SupervisorJob</code> sẽ không truyền Exception mà để cho coroutine con xử lý nó.</p>
+
+<p>Bạn có thể tạo 1 <code class="language-plaintext highlighter-rouge">CoroutineScope</code> như sau <code class="language-plaintext highlighter-rouge">val uiScope = CoroutineScope(SupervisorJob())</code> để không truyền cancellation khi mà coroutine bị lỗi như hình dưới mô tả</p>
+
+<p><img src="assets/images/coroutines-cancellation-exceptions-3_2.png" alt="SupervisorJob và toàn bộ các con còn lại của nó sẽ không huỷ." title="SupervisorJob và toàn bộ các con còn lại của nó sẽ không huỷ." /></p>
+
+<p>Nếu exception không được xử lý và <code class="language-plaintext highlighter-rouge">CoroutineContext</code> không có <code class="language-plaintext highlighter-rouge">CoroutineExceptionHandler</code> (chúng ta sẽ tìm hiểu sau), nó sẽ tới <code class="language-plaintext highlighter-rouge">ExceptionHandler</code> của thread mặc định. Trong JVM, exception sẽ được ghi ra console. Trong Android, nó sẽ khiến ứng dụng của bạn bị crash bất kể nó xảy ra trên Dispatcher nào.</p>
+
+<blockquote>
+  <p>💥 Exception chưa được xử lý sẽ luôn bị ném ra bất kể bạn sử dụng loại Job nào.</p>
+</blockquote>
+
+<p>Hành vi tương tự cũng áp dụng cho các scope builder <code class="language-plaintext highlighter-rouge">coroutineScope</code> và <code class="language-plaintext highlighter-rouge">supervisorScope</code>. Chúng sẽ tạo sub-scope (với một <code class="language-plaintext highlighter-rouge">Job</code> hoặc <code class="language-plaintext highlighter-rouge">SupervisorJob</code> tương ứng như cha) để bạn có thể nhóm các coroutine một cách logic (ví dụ: nếu bạn muốn thực hiện các tính toán song song hoặc muốn chúng có hoặc không bị ảnh hưởng lẫn nhau).</p>
+
+<p>Chú ý: <code class="language-plaintext highlighter-rouge">SupervisorJob</code> chỉ hoạt động như mô tả khi nó là một phần của scope: được tạo bằng <code class="language-plaintext highlighter-rouge">supervisorScope</code> hoặc <code class="language-plaintext highlighter-rouge">CoroutineScope(SupervisorJob())</code>.</p>
+
+<h2 id="job-hay-supervisorjob-">Job hay SupervisorJob? 🤔</h2>
+
+<p>Vậy thì lúc nào sử dụng <code class="language-plaintext highlighter-rouge">Job</code>, lúc nào sử dụng <code class="language-plaintext highlighter-rouge">SupervisorJob</code>? Bạn nên dùng <code class="language-plaintext highlighter-rouge">SupervisorJob</code> hoặc <code class="language-plaintext highlighter-rouge">supervisorScope</code> khi KHÔNG MUỐN một lỗi khiến coroutine cha mẹ và các coroutine con khác bị hủy bỏ.</p>
+
+<p>Ví dụ:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Scope handling coroutines for a particular layer of my app</span>
+<span class="kd">val</span> <span class="py">scope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">())</span>
+
+<span class="n">scope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+    <span class="c1">// Child 1</span>
+<span class="p">}</span>
+
+<span class="n">scope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+    <span class="c1">// Child 2</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Trong trường hợp này, if <code class="language-plaintext highlighter-rouge">child#1</code> fail, thì cả scope lẫn <code class="language-plaintext highlighter-rouge">child#2</code> đều sẽ bị huỷ.</p>
+
+<p>Ví dụ khác:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Scope handling coroutines for a particular layer of my app</span>
+<span class="kd">val</span> <span class="py">scope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">Job</span><span class="p">())</span>
+
+<span class="n">scope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+    <span class="nf">supervisorScope</span> <span class="p">{</span>
+        <span class="nf">launch</span> <span class="p">{</span>
+            <span class="c1">// Child 1</span>
+        <span class="p">}</span>
+        <span class="nf">launch</span> <span class="p">{</span>
+            <span class="c1">// Child 2</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Trong trường hợp này, vì <code class="language-plaintext highlighter-rouge">supervisorScope</code> tạo một sub-scope với một <code class="language-plaintext highlighter-rouge">SupervisorJob</code>, nếu <code class="language-plaintext highlighter-rouge">child#1</code> lỗi, <code class="language-plaintext highlighter-rouge">child#2</code> sẽ KHÔNG BỊ hủy bỏ. Nếu thay vào đó bạn sử dụng <code class="language-plaintext highlighter-rouge">coroutineScope</code> trong cài đặt, lỗi sẽ được lan truyền và cuối cùng sẽ hủy bỏ cả scope.</p>
+
+<h2 id="quiz-nhé-ai-là-cha-của-tôi-">Quiz nhé! Ai là cha của tôi? 🎯</h2>
+
+<p>Cho đoạn code phía dưới, bạn có thể xác định cho tôi biết rằng loại Job nào là cha của child#1?</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">scope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">Job</span><span class="p">())</span>
+
+<span class="n">scope</span><span class="p">.</span><span class="nf">launch</span><span class="p">(</span><span class="nc">SupervisorJob</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// new coroutine -&gt; can suspend</span>
+    <span class="nf">launch</span> <span class="p">{</span>
+        <span class="c1">// Child 1</span>
+    <span class="p">}</span>
+    <span class="nf">launch</span> <span class="p">{</span>
+        <span class="c1">// Child 2</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Job cha của child#1 là kiểu Job! Hi vọng bạn không có sai! Dù thoạt nhìn bạn có thể nghĩ nó là một SupervisorJob, nhưng không phải vì một coroutine mới luôn được gán một Job() mới, và trong trường hợp này, nó ghi đè lên SupervisorJob. SupervisorJob là job cha của coroutine được tạo với scope.launch; đơn giản là, SupervisorJob không làm gì trong đoạn code đó!</p>
+
+<p><img src="assets/images/coroutines-cancellation-exceptions-3_3.png" alt="Cha của `child#1` and `child#2` là`Job`, không phải `SupervisorJob`." title="Cha của `child#1` and `child#2` là`Job`, không phải `SupervisorJob`." /></p>
+
+<p>Vì thế nếu <code class="language-plaintext highlighter-rouge">child#1</code> hoặc <code class="language-plaintext highlighter-rouge">child#2</code> fail, thì lỗi sẽ tới được scope và tất cả việc được bắt đầu bởi nó sẽ bị huỷ.</p>
+
+<p>Nhớ rằng <code class="language-plaintext highlighter-rouge">SupervisorJob</code> chỉ hoạt động như mô tả khi nó là một phần của scope, được tạo bằng <code class="language-plaintext highlighter-rouge">supervisorScope</code> hoặc <code class="language-plaintext highlighter-rouge">CoroutineScope(SupervisorJob())</code>. Truyền <code class="language-plaintext highlighter-rouge">SupervisorJob</code> như một tham số của một builder coroutine sẽ không có tác dụng mong muốn đối với việc hủy bỏ như bạn nghĩ. Điều này nhấn mạnh rằng <code class="language-plaintext highlighter-rouge">SupervisorJob</code> chỉ ảnh hưởng đến cách hủy bỏ khi nó trực tiếp là Job cha mẹ của các coroutine.</p>
+
+<p>Nếu bất kỳ child nào ném Exception, <code class="language-plaintext highlighter-rouge">SupervisorJob</code> sẽ không lan truyền Exception lên trên trong hierarchy và sẽ để coroutine của nó xử lý. Trong trường hợp này, <code class="language-plaintext highlighter-rouge">SupervisorJob</code> cho phép các Exception trong các coroutine con được xử lý riêng lẻ mà không ảnh hưởng đến các coroutine con khác trong cùng phạm vi.</p>
+
+<h2 id="tìm-hiểu-sâu-hơn">Tìm hiểu sâu hơn</h2>
+
+<p>Nếu bạn tò mò về cách Job hoạt động, hãy xem chi tiết các hàm <a href="https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/common/src/JobSupport.kt#L645">childCancelled</a> và <a href="https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/common/src/JobSupport.kt#L326">notifyCancelling</a> trong file JobSupport.kt. Đây là các hàm cốt lõi liên quan đến việc hủy bỏ các coroutine.</p>
+
+<p>Trong SupervisorJob, phương thức <a href="https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/common/src/Supervisor.kt#L64">childCancelled</a> luôn trả về false. Điều này có nghĩa là:
+<code class="language-plaintext highlighter-rouge">SupervisorJob</code> không truyền hủy bỏ do lỗi của một coroutine con lên các coroutine con khác trong cùng phạm vi. Tuy nhiên, <code class="language-plaintext highlighter-rouge">SupervisorJob</code> cũng không xử lý Exception ném ra bởi các coroutine con. Exception đó vẫn cần được xử lý riêng trong coroutine con gặp lỗi.</p>
+
+<h2 id="xử-lý-với-exception">Xử lý với Exception</h2>
+
+<p>Coroutine sử dụng cú pháp bình thường của Kotlin để xử lý exception: <code class="language-plaintext highlighter-rouge">try/catch</code> hoặc là helper function dựng sẵn như runCatching (dùng <code class="language-plaintext highlighter-rouge">try/catch</code> nội bộ)</p>
+
+<p>Như chúng ta đã nói thì exception không được catch sẽ luôn bị bắn ra. Tuy nhiên các coroutine builder khác nhau xử lý exception theo những cách khác nhau.</p>
+
+<h3 id="launch">Launch</h3>
+<p>Khi sử dụng hàm launch, <strong>Exception sẽ được ném ra ngay khi chúng xảy ra</strong>. Do đó, bạn có thể bọc đoạn code có thể ném Exception trong một khối <code class="language-plaintext highlighter-rouge">try/catch</code>, như trong ví dụ này:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">scope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="nf">codeThatCanThrowExceptions</span><span class="p">()</span>
+    <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nc">Exception</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Handle exception</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>Với <strong>launch</strong>, exception sẽ được ném ra ngay khi chúng xảy ra.</p>
+</blockquote>
+
+<h3 id="async">Async</h3>
+<p>Khi sử dụng <code class="language-plaintext highlighter-rouge">async</code> cho một coroutine gốc (coroutine con trực tiếp của một instance <code class="language-plaintext highlighter-rouge">CoroutineScope</code> hoặc <code class="language-plaintext highlighter-rouge">supervisorScope</code>), Exception sẽ không tự động ném ra. Thay vào đó, chúng sẽ ném ra khi bạn gọi phương thức <code class="language-plaintext highlighter-rouge">.await()</code>.</p>
+
+<p>Để xử lý Exception ném ra trong <code class="language-plaintext highlighter-rouge">async</code> khi nó là một coroutine gốc, bạn có thể bọc việc gọi <code class="language-plaintext highlighter-rouge">.await()</code> trong một khối <code class="language-plaintext highlighter-rouge">try/catch</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">supervisorScope</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">deferred</span> <span class="p">=</span> <span class="nf">async</span> <span class="p">{</span>
+        <span class="nf">codeThatCanThrowExceptions</span><span class="p">()</span>
+    <span class="p">}</span>
+    
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="n">deferred</span><span class="p">.</span><span class="nf">await</span><span class="p">()</span>
+    <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nc">Exception</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Handle exception thrown in async</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Trong trường hợp này, hãy lưu ý rằng việc gọi <code class="language-plaintext highlighter-rouge">async</code> sẽ không bao giờ ném ra exception. Do đó, bạn không cần phải bọc nó trong khối try/catch. Phương thức <code class="language-plaintext highlighter-rouge">await</code> sẽ ném ra exception xảy ra bên trong coroutine <code class="language-plaintext highlighter-rouge">async</code>.</p>
+
+<blockquote>
+  <p>Khi sử dụng <code class="language-plaintext highlighter-rouge">async</code> cho một coroutine gốc (coroutine con trực tiếp của một instance <code class="language-plaintext highlighter-rouge">CoroutineScope</code> hoặc <code class="language-plaintext highlighter-rouge">supervisorScope</code>), Exception sẽ được ném ra khi bạn gọi phương thức <code class="language-plaintext highlighter-rouge">.await()</code>.</p>
+</blockquote>
+
+<p>Cần lưu ý rằng chúng ta đang sử dụng <code class="language-plaintext highlighter-rouge">supervisorScope</code> để gọi <code class="language-plaintext highlighter-rouge">async</code> và <code class="language-plaintext highlighter-rouge">await</code>. Như đã nói trước đó, <code class="language-plaintext highlighter-rouge">SupervisorJob</code> cho phép coroutine tự xử lý Exception, ngược lại với Job sẽ tự động lan truyền Exception lên trên hierarchy khiến khối catch bên ngoài không được gọi.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">coroutineScope</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">deferred</span> <span class="p">=</span> <span class="nf">async</span> <span class="p">{</span>
+            <span class="nf">codeThatCanThrowExceptions</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="n">deferred</span><span class="p">.</span><span class="nf">await</span><span class="p">()</span>
+    <span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nc">Exception</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Exception thrown in async WILL NOT be caught here </span>
+        <span class="c1">// but propagated up to the scope</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Hơn nữa, Exception xảy ra trong các coroutine con được tạo bởi các coroutine khác sẽ luôn được lan truyền bất kể coroutine builder nào được sử dụng. Ví dụ:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">scope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">Job</span><span class="p">())</span>
+
+<span class="n">scope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+    <span class="nf">async</span> <span class="p">{</span>
+        <span class="c1">// If async throws, launch throws without calling .await()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Trong trường hợp này, nếu <code class="language-plaintext highlighter-rouge">async</code> ném Exception, nó sẽ được ném ra ngay lập tức vì coroutine con trực tiếp của scope là <code class="language-plaintext highlighter-rouge">launch</code>. Lý do là <code class="language-plaintext highlighter-rouge">async</code> (sử dụng <code class="language-plaintext highlighter-rouge">Job</code> trong <code class="language-plaintext highlighter-rouge">CoroutineContext</code>) sẽ tự động lan truyền Exception lên đến coroutine cha (launch) và chính launch sẽ ném Exception đó ra.</p>
+
+<blockquote>
+  <p>⚠️ Exception ném ra trong builder <code class="language-plaintext highlighter-rouge">coroutineScope</code> hoặc trong các coroutine con khác sẽ KHÔNG được bắt bởi khối try/catch ở đây!</p>
+</blockquote>
+
+<p>Trong phần <code class="language-plaintext highlighter-rouge">SupervisorJob</code>, chúng ta đã đề cập đến sự tồn tại của <code class="language-plaintext highlighter-rouge">CoroutineExceptionHandler</code>. Bây giờ hãy cùng tìm hiểu sâu hơn về nó!</p>
+
+<h2 id="coroutineexceptionhandler">CoroutineExceptionHandler</h2>
+
+<p><code class="language-plaintext highlighter-rouge">CoroutineExceptionHandler</code> là một thành phần tùy chọn trong <code class="language-plaintext highlighter-rouge">CoroutineContext</code>, cho phép bạn xử lý các <strong>exception không được bắt</strong>.</p>
+
+<p>Đây là cách mà bạn có thể định nghĩa một <code class="language-plaintext highlighter-rouge">CoroutineExceptionHandler</code> bất cứ khi nào mà exception được bắt bạn sẽ có thông tin về <code class="language-plaintext highlighter-rouge">CoroutineContext</code> nơi mà exception xảy ra và exception đó.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">handler</span> <span class="p">=</span> <span class="nc">CoroutineExceptionHandler</span> <span class="p">{</span>
+    <span class="n">context</span><span class="p">,</span> <span class="n">exception</span> <span class="p">-&gt;</span> <span class="nf">println</span><span class="p">(</span><span class="s">"Caught $exception"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Exception sẽ được bắt nếu thoả mãn các yêu cầu sau:</p>
+<ul>
+  <li><strong>Khi ⏰:</strong> Exception được ném ra bởi một coroutine tự động ném exception (hoạt động với <code class="language-plaintext highlighter-rouge">launch</code>, không hoạt động với <code class="language-plaintext highlighter-rouge">async</code>).</li>
+  <li><strong>Ở 🌍:</strong> Nếu nó nằm trong <code class="language-plaintext highlighter-rouge">CoroutineContext</code> của <code class="language-plaintext highlighter-rouge">CoroutineScope</code> hoặc một coroutine gốc (con trực tiếp của <code class="language-plaintext highlighter-rouge">CoroutineScope</code> hoặc <code class="language-plaintext highlighter-rouge">supervisorScope</code>).</li>
+</ul>
+
+<p>Hãy xem một số ví dụ sử dụng CoroutineExceptionHandler được định nghĩa ở trên. Trong ví dụ sau, exception sẽ được bắt bởi trình xử lý:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">scope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">Job</span><span class="p">())</span>
+<span class="n">scope</span><span class="p">.</span><span class="nf">launch</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">launch</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="nc">Exception</span><span class="p">(</span><span class="s">"Failed coroutine"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Trong trường hợp khách, trình xử lý được cài đặt trong một coroutine bên trong, exception sẽ không được bắt:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">scope</span> <span class="p">=</span> <span class="nc">CoroutineScope</span><span class="p">(</span><span class="nc">Job</span><span class="p">())</span>
+<span class="n">scope</span><span class="p">.</span><span class="nf">launch</span> <span class="p">{</span>
+    <span class="nf">launch</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="nc">Exception</span><span class="p">(</span><span class="s">"Failed coroutine"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Exception không được bắt vì trình xử lý không được cài đặt trong CoroutineContext phù hợp. Coroutine bên trong sẽ truyền exception lên coroutine cha ngay khi nó xảy ra, vì coroutine cha không biết gì về trình xử lý, nên exception sẽ bị ném ra.</p>
+
+<hr />
+
+<p>Xử lý exception khéo léo trong ứng dụng của bạn rất quan trọng để mang lại trải nghiệm người dùng tốt, ngay cả khi mọi thứ không diễn ra như mong đợi.</p>
+
+<p>Hãy nhớ sử dụng SupervisorJob khi bạn muốn tránh truyền lan hủy bỏ khi xảy ra exception, và sử dụng Job trong các trường hợp khác.</p>
+
+<p>Exception mà không được bắt sẽ được lan truyền, hãy bắt chúng để mang lại trải nghiệm người dùng tuyệt vời!</p>
+
+                </div>
+            </section>
+
+            <!-- Email subscribe form at the bottom of the page -->
+            
+                <!-- <section class="subscribe-form">
+                    <h3 class="subscribe-form-title">Subscribe to Kendis .dev</h3>
+                    <p>Get the latest posts delivered right to your inbox</p>
+                    <form method="post" action="/subscribe/" class="">
+    <input class="confirm" type="hidden" name="confirm"  /><input class="location" type="hidden" name="location"  /><input class="referrer" type="hidden" name="referrer"  />
+
+    <div class="form-group">
+        <input class="subscribe-email" type="email" name="email"  placeholder="youremail@example.com" />
+    </div>
+    <button class="" type="submit" disabled><span>Subscribe</span></button>
+    <script type="text/javascript">(function(g,h,o,s,t){h[o]('.location')[s]=h[o]('.location')[s] || g.location.href;h[o]('.referrer')[s]=h[o]('.referrer')[s] || h.referrer;})(window,document,'querySelector','value');</script>
+</form>
+
+                </section> -->
+            
+
+            <footer class="post-full-footer">
+                <!-- Everything inside the #author tags pulls data from the author -->
+                <!-- #author-->
+                
+                    
+                        <section class="author-card">
+                            
+                                <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="kendis" />
+                            
+                            <section class="author-card-content">
+                                <h4 class="author-card-name"><a href="/android_blog/author/kendis">Kendis</a></h4>
+                                
+                                    <p>Một thằng lập trình viên Android</p>
+                                
+                            </section>
+                        </section>
+                        <div class="post-full-footer-right">
+                            <a class="author-card-button" href="/android_blog/author/kendis">Read More</a>
+                        </div>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <!-- /author  -->
+            </footer>
+
+            <!-- If you use Disqus comments, just uncomment this block.
+            The only thing you need to change is "test-apkdzgmqhj" - which
+            should be replaced with your own Disqus site-id. -->
+            
+
+        </article>
+
+    </div>
+</main>
+
+<!-- Links to Previous/Next posts -->
+<aside class="read-next outer">
+    <div class="inner">
+        <div class="read-next-feed">
+            
+                
+                
+                
+                
+                    <article class="read-next-card"
+                        
+                            style="background-image: url(/android_blog/assets/images/blog-cover.jpg)"
+                        
+                    >
+                        <header class="read-next-card-header">
+                            <small class="read-next-card-header-sitetitle">&mdash; Kendis .dev &mdash;</small>
+                            
+                                <h3 class="read-next-card-header-title"><a href="/android_blog/tag/coroutine/">Coroutine</a></h3>
+                            
+                        </header>
+                        <div class="read-next-divider"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 14.5s2 3 5 3 5.5-2.463 5.5-5.5S21 6.5 18 6.5c-5 0-7 11-12 11C2.962 17.5.5 15.037.5 12S3 6.5 6 6.5s4.5 3.5 4.5 3.5"/></svg>
+</div>
+                        <div class="read-next-card-content">
+                            <ul>
+                                
+                                
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/better-way-to-collect-flow">Cách an toàn để thu thập các flow ở Android UI</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/coroutinescope-application-hilt">Tạo 1 ứng dụng CoroutineScope sử dụng Hilt</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                            <li><a href="/android_blog/3-mistakes-should-avoid-compose">3 lỗi cần phải tránh khi sử dụng Jetpack Compose</a></li>
+                                        
+                                    
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                    
+                                  
+                                
+                                  
+                                
+                                  
+                                    
+                                        
+                                        
+                                    
+                                  
+                                
+                            </ul>
+                        </div>
+                        <footer class="read-next-card-footer">
+                            <a href="/android_blog/tag/coroutine/">
+                                
+                                    Xem tất cả 5 post  →
+                                
+                            </a>
+                        </footer>
+                    </article>
+                
+            
+
+            <!-- If there's a next post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/android_blog/hilt-stable">
+                <div class="post-card-image" style="background-image: url(/android_blog/assets/images/hilt-stable.png)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/android_blog/hilt-stable">
+                <header class="post-card-header">
+                    
+                        
+                            
+                                <span class="post-card-tags">Hilt</span>
+                            
+                        
+                    
+
+                    <h2 class="post-card-title">Hilt đã stable. Đơn giản hoá việc dependency injection trong Android</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p>Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.
+
+</p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                        
+                        <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="Kendis" />
+                        
+                        <span class="post-card-author">
+                            <a href="/android_blog/author/kendis/">Kendis</a>
+                        </span>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      5 phút
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+            <!-- If there's a previous post, display it using the same markup included from - partials/post-card.hbs -->
+            
+                
+
+    <article class="post-card post-template">
+        
+            <a class="post-card-image-link" href="/android_blog/3-mistakes-should-avoid-compose">
+                <div class="post-card-image" style="background-image: url(/android_blog/assets/images/viewmodelscope.png)"></div>
+            </a>
+        
+        <div class="post-card-content">
+            <a class="post-card-content-link" href="/android_blog/3-mistakes-should-avoid-compose">
+                <header class="post-card-header">
+                    
+                        
+                            
+                                <span class="post-card-tags">Coroutine</span>
+                            
+                        
+                    
+
+                    <h2 class="post-card-title">3 lỗi cần phải tránh khi sử dụng Jetpack Compose</h2>
+                </header>
+                <section class="post-card-excerpt">
+                    
+                        <p>Dưới đây sẽ là một số lỗi cần phải tránh khi sử dụng Jetpack Compose.
+
+</p>
+                    
+                </section>
+            </a>
+            <footer class="post-card-meta">
+                
+                    
+                        
+                        <img class="author-profile-image" src="/android_blog/assets/images/ghost.png" alt="Kendis" />
+                        
+                        <span class="post-card-author">
+                            <a href="/android_blog/author/kendis/">Kendis</a>
+                        </span>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                <span class="reading-time">
+                    
+                    
+                      4 phút
+                    
+                </span>
+            </footer>
+        </div>
+    </article>
+
+            
+
+        </div>
+    </div>
+</aside>
+
+<!-- Floating header which appears on-scroll, included from includes/floating-header.hbs -->
+<div class="floating-header">
+    <div class="floating-header-logo">
+        <a href="/android_blog/">
+            
+                <img src="/android_blog/assets/images/favicon.png" alt="Kendis .dev icon" />
+            
+            <span>Kendis .dev</span>
+        </a>
+    </div>
+    <span class="floating-header-divider">&mdash;</span>
+    <div class="floating-header-title">Exception trong coroutine</div>
+    <div class="floating-header-share">
+        <div class="floating-header-share-label">Chia sẻ <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M7.5 15.5V4a1.5 1.5 0 1 1 3 0v4.5h2a1 1 0 0 1 1 1h2a1 1 0 0 1 1 1H18a1.5 1.5 0 0 1 1.5 1.5v3.099c0 .929-.13 1.854-.385 2.748L17.5 23.5h-9c-1.5-2-5.417-8.673-5.417-8.673a1.2 1.2 0 0 1 1.76-1.605L7.5 15.5zm6-6v2m-3-3.5v3.5m6-1v2"/>
+</svg>
+</div>
+        <a class="floating-header-share-tw" href="https://twitter.com/share?text=Exception+trong+coroutine&amp;url=https://kendis1002.github.io/android_blog/coroutines-cancellation-exceptions"
+            onclick="window.open(this.href, 'share-twitter', 'width=550,height=235');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.063 7.313c-.813 1.125-1.75 2.125-2.875 2.938v.75c0 1.563-.188 3.125-.688 4.625a15.088 15.088 0 0 1-2.063 4.438c-.875 1.438-2 2.688-3.25 3.813a15.015 15.015 0 0 1-4.625 2.563c-1.813.688-3.75 1-5.75 1-3.25 0-6.188-.875-8.875-2.625.438.063.875.125 1.375.125 2.688 0 5.063-.875 7.188-2.5-1.25 0-2.375-.375-3.375-1.125s-1.688-1.688-2.063-2.875c.438.063.813.125 1.125.125.5 0 1-.063 1.5-.25-1.313-.25-2.438-.938-3.313-1.938a5.673 5.673 0 0 1-1.313-3.688v-.063c.813.438 1.688.688 2.625.688a5.228 5.228 0 0 1-1.875-2c-.5-.875-.688-1.813-.688-2.75 0-1.063.25-2.063.75-2.938 1.438 1.75 3.188 3.188 5.25 4.25s4.313 1.688 6.688 1.813a5.579 5.579 0 0 1 1.5-5.438c1.125-1.125 2.5-1.688 4.125-1.688s3.063.625 4.188 1.813a11.48 11.48 0 0 0 3.688-1.375c-.438 1.375-1.313 2.438-2.563 3.188 1.125-.125 2.188-.438 3.313-.875z"/></svg>
+
+        </a>
+        <a class="floating-header-share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https://kendis1002.github.io/android_blog/coroutines-cancellation-exceptions"
+            onclick="window.open(this.href, 'share-facebook','width=580,height=296');return false;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M19 6h5V0h-5c-3.86 0-7 3.14-7 7v3H8v6h4v16h6V16h5l1-6h-6V7c0-.542.458-1 1-1z"/></svg>
+
+        </a>
+    </div>
+    <progress class="progress" value="0">
+        <div class="progress-container">
+            <span class="progress-bar"></span>
+        </div>
+    </progress>
+</div>
+
+
+<!-- /post -->
+
+<!-- The #contentFor helper here will send everything inside it up to the matching #block helper found in default.hbs -->
+
+
+        <!-- Previous/next page links - displayed on every page -->
+        
+
+        <!-- The footer at the very bottom of the screen -->
+        <footer class="site-footer outer">
+            <div class="site-footer-content inner">
+                <section class="copyright"><a href="/android_blog/">Kendis .dev</a> &copy; 2025</section>
+                <section class="poweredby">Proudly published with <a href="https://jekyllrb.com/">Jekyll</a> &
+                    <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> using
+                    <a href="https://github.com/jekyllt/jasper2" target="_blank" rel="noopener">Jasper2</a></section>
+                <nav class="site-footer-nav">
+                    <a href="/android_blog/">Latest Posts</a>
+                    <a href="https://facebook.com/kendis1002" target="_blank" rel="noopener">Facebook</a>
+                    
+                    <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+                </nav>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- The big email subscribe modal content -->
+    
+        <div id="subscribe" class="subscribe-overlay">
+            <a class="subscribe-overlay-close" href="#"></a>
+            <div class="subscribe-overlay-content">
+                
+                <h1 class="subscribe-overlay-title">Subscribe to Kendis .dev</h1>
+                <p class="subscribe-overlay-description">Stay up to date! Get all the latest &amp; greatest posts delivered straight to your inbox</p>
+                <!-- <form method="post" action="/subscribe/" class="">
+    <input class="confirm" type="hidden" name="confirm"  /><input class="location" type="hidden" name="location"  /><input class="referrer" type="hidden" name="referrer"  />
+
+    <div class="form-group">
+        <input class="subscribe-email" type="email" name="email"  placeholder="youremail@example.com" />
+    </div>
+    <button class="" type="submit" disabled><span>Subscribe</span></button>
+    <script type="text/javascript">(function(g,h,o,s,t){h[o]('.location')[s]=h[o]('.location')[s] || g.location.href;h[o]('.referrer')[s]=h[o]('.referrer')[s] || h.referrer;})(window,document,'querySelector','value');</script>
+</form>
+ -->
+            </div>
+        </div>
+    
+
+    <!-- highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.10.0/components/prism-abap.min.js"></script>
+    <script>$(document).ready(function() {
+      $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
+    });</script>
+
+    <!-- jQuery + Fitvids, which makes all video embeds responsive -->
+    <script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" src="/android_blog/assets/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="https://demo.ghost.io/assets/js/jquery.fitvids.js?v=724281a32e"></script>
+
+
+    <!-- Paginator increased to "infinit" in _config.yml -->
+    <!-- if paginator.posts  -->
+    <!-- <script>
+        var maxPages = parseInt('');
+    </script>
+    <script src="/android_blog/assets/js/infinitescroll.js"></script> -->
+    <!-- /endif -->
+
+    
+
+
+    <!-- Add Google Analytics  -->
+    <!-- Google Analytics Tracking code -->
+ <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-69281367-1', 'auto');
+  ga('send', 'pageview');
+
+ </script>
+
+
+    <!-- The #block helper will pull in data from the #contentFor other template files. In this case, there's some JavaScript which we only want to use in post.hbs, but it needs to be included down here, after jQuery has already loaded. -->
+    
+        <script>
+
+// NOTE: Scroll performance is poor in Safari
+// - this appears to be due to the events firing much more slowly in Safari.
+//   Dropping the scroll event and using only a raf loop results in smoother
+//   scrolling but continuous processing even when not scrolling
+$(document).ready(function () {
+    // Start fitVids
+    var $postContent = $(".post-full-content");
+    $postContent.fitVids();
+    // End fitVids
+
+    var progressBar = document.querySelector('progress');
+    var header = document.querySelector('.floating-header');
+    var title = document.querySelector('.post-full-title');
+
+    var lastScrollY = window.scrollY;
+    var lastWindowHeight = window.innerHeight;
+    var lastDocumentHeight = $(document).height();
+    var ticking = false;
+
+    function onScroll() {
+        lastScrollY = window.scrollY;
+        requestTick();
+    }
+
+    function onResize() {
+        lastWindowHeight = window.innerHeight;
+        lastDocumentHeight = $(document).height();
+        requestTick();
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(update);
+        }
+        ticking = true;
+    }
+
+    function update() {
+        var trigger = title.getBoundingClientRect().top + window.scrollY;
+        var triggerOffset = title.offsetHeight + 35;
+        var progressMax = lastDocumentHeight - lastWindowHeight;
+
+        // show/hide floating header
+        if (lastScrollY >= trigger + triggerOffset) {
+            header.classList.add('floating-active');
+        } else {
+            header.classList.remove('floating-active');
+        }
+
+        progressBar.setAttribute('max', progressMax);
+        progressBar.setAttribute('value', lastScrollY);
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    window.addEventListener('resize', onResize, false);
+
+    update();
+});
+</script>
+
+    
+
+    <!-- Ghost outputs important scripts and data with this tag - it should always be the very last thing before the closing body tag -->
+    <!-- ghost_foot -->
+
+</body>
+</html>

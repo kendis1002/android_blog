@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title> - Articles</title>
+    <description>Một nơi mà tôi và bạn có thể học Android cùng nhau</description>
+    <link>
+    </link>
+    
+      
+      <item>
+        <title>derivedStateOf VS. remember(key) - Chúng nó rất khác nhau đấy.</title>
+        
+          <description>&lt;p&gt;derivedStateOf VS. remember(key) - Chúng nó rất khác nhau đấy.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sun, 26 Jan 2025 10:18:00 +0000</pubDate>
+        <link>
+        /derived-state-of</link>
+        <guid isPermaLink="true">/derived-state-of</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Custom cardview trong Jetpack Compose</title>
+        
+          <description>&lt;p&gt;Học cách custom view trong Jetpack Compose với ví dụ cụ thể là 1 cardview.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 26 Jan 2024 10:18:00 +0000</pubDate>
+        <link>
+        /custom-compose-view</link>
+        <guid isPermaLink="true">/custom-compose-view</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Cách an toàn để thu thập các flow ở Android UI</title>
+        
+          <description>&lt;p&gt;Học cách sử dụng API Lifecycle.repeatOnLifecycle để an toàn thu thập flows ở tầng UI trên Android.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Mon, 22 Jan 2024 10:18:00 +0000</pubDate>
+        <link>
+        /better-way-to-collect-flow</link>
+        <guid isPermaLink="true">/better-way-to-collect-flow</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Tạo 1 ứng dụng CoroutineScope sử dụng Hilt</title>
+        
+          <description>&lt;p&gt;Inject một CoroutineScope phạm vi mức Application sử dụng Hilt.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sat, 20 Jan 2024 10:18:00 +0000</pubDate>
+        <link>
+        /coroutinescope-application-hilt</link>
+        <guid isPermaLink="true">/coroutinescope-application-hilt</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Hilt đã stable. Đơn giản hoá việc dependency injection trong Android</title>
+        
+          <description>&lt;p&gt;Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Sun, 24 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /hilt-stable</link>
+        <guid isPermaLink="true">/hilt-stable</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Exception trong coroutine</title>
+        
+          <description>&lt;p&gt;Tất cả những điều bạn cần biết về exception trong coroutine&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Thu, 14 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /coroutines-cancellation-exceptions</link>
+        <guid isPermaLink="true">/coroutines-cancellation-exceptions</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>3 lỗi cần phải tránh khi sử dụng Jetpack Compose</title>
+        
+          <description>&lt;p&gt;Dưới đây sẽ là một số lỗi cần phải tránh khi sử dụng &lt;strong&gt;Jetpack Compose&lt;/strong&gt;.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 08 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /3-mistakes-should-avoid-compose</link>
+        <guid isPermaLink="true">/3-mistakes-should-avoid-compose</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Best practices về coroutine trong Android</title>
+        
+          <description>&lt;p&gt;Dưới đây sẽ là một số best practices có tác động tích cực bằng cách làm cho ứng dụng của bạn trở nên có khả năng mở rộng và test tốt hơn khi sử dụng &lt;strong&gt;coroutines&lt;/strong&gt;.&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 08 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /best-practices-for-coroutines-in-android</link>
+        <guid isPermaLink="true">/best-practices-for-coroutines-in-android</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Antipattern - ViewModel event 1 lần</title>
+        
+          <description>&lt;p&gt;Bạn nên xử lý ngay các event ViewModel bằng cách update UI state&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 08 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /viewmodel-events-antipatterns</link>
+        <guid isPermaLink="true">/viewmodel-events-antipatterns</guid>
+      </item>
+      
+    
+      
+      <item>
+        <title>Coroutines đơn giản trong Android - viewModelScope</title>
+        
+          <description>&lt;p&gt;Tìm hiểu mọi thứ bạn nên biết về viewModelScope&lt;/p&gt;
+
+</description>
+        
+        <pubDate>Fri, 08 Dec 2023 10:18:00 +0000</pubDate>
+        <link>
+        /viewmodelscope</link>
+        <guid isPermaLink="true">/viewmodelscope</guid>
+      </item>
+      
+    
+  </channel>
+</rss>

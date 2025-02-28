@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<feed xmlns="http://www.w3.org/2005/Atom" >
+  <generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator>
+  <link href="/android_blog/tag/hilt/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="/android_blog/" rel="alternate" type="text/html" />
+  <updated>2025-02-28T09:06:09+00:00</updated>
+  <id>/android_blog/tag/hilt/feed.xml</id>
+
+  
+  
+  
+
+  
+    <title type="html">Kendis .dev | </title>
+  
+
+  
+    <subtitle>Một nơi mà tôi và bạn có thể học Android cùng nhau</subtitle>
+  
+
+  
+
+  
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+
+  
+  
+
+  
+    <entry>
+      <title type="html">Tạo 1 ứng dụng CoroutineScope sử dụng Hilt</title>
+      <link href="/android_blog/coroutinescope-application-hilt" rel="alternate" type="text/html" title="Tạo 1 ứng dụng CoroutineScope sử dụng Hilt" />
+      <published>2024-01-20T10:18:00+00:00</published>
+      <updated>2024-01-20T10:18:00+00:00</updated>
+      <id>/android_blog/coroutinescope-application-hilt</id>
+      <content type="html" xml:base="/android_blog/coroutinescope-application-hilt">&lt;p&gt;Inject một CoroutineScope phạm vi mức Application sử dụng Hilt.&lt;/p&gt;
+
+&lt;p&gt;Theo các best practice của coroutine, bạn có thể cần phải inject một CoroutineScope phạm vi ứng dụng vào một số class để khởi chạy các coroutine mới theo vòng đời ứng dụng hoặc để làm cho một số công việc tồn tại lâu hơn scope của người gọi.&lt;/p&gt;
+
+&lt;p&gt;Trong bài viết này, bạn sẽ học cách tạo một &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; có phạm vi ứng dụng bằng cách sử dụng Hilt, và cách inject nó như một phụ thuộc. Để cải thiện cách chúng ta làm việc với Coroutines, chúng ta sẽ xem cách tiêm các &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt; khác nhau và thay thế cài đặt của chúng trong các bài test.&lt;/p&gt;
+
+&lt;h2 id=&quot;dependency-injection-bằng-tay&quot;&gt;Dependency injection bằng tay&lt;/h2&gt;
+&lt;p&gt;Để tạo một &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; phạm vi ứng dụng theo các nguyên tắc DI mà không cần sử dụng thư viện nào, bạn thường sẽ thêm một biến mới vào lớp ứng dụng của bạn với một phiên bản của &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt;. Cùng một instance sẽ được truyền thủ công khi tạo các đối tượng khác.&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyRepository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;externalScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/* ... */&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyApplication&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Application-scoped types that any class in the app could access&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// using the applicationContext.&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;applicationScope&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SupervisorJob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;myRepository&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyRepository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;applicationScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Vì không có cách đáng tin cậy nào để biết khi &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Application&lt;/code&gt; bị hủy bỏ trong Android, bạn không cần gọi &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;applicationScope.cancel()&lt;/code&gt; bằng tay vì phạm vi và tất cả công việc đang diễn ra sẽ bị hủy bỏ khi application process kết thúc.&lt;/p&gt;
+
+&lt;p&gt;Một lựa chọn tốt hơn cho việc làm điều này bằng cách thủ công là tạo một class &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ApplicationContainer&lt;/code&gt; chứa các loại có phạm vi ứng dụng. Điều này giúp phân chia vấn đề vì những lớp Container này chịu trách nhiệm về:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;xử lý logic về cách xây dựng các loại cụ thể,&lt;/li&gt;
+  &lt;li&gt;giữ các instance có loại là container-scoped, và&lt;/li&gt;
+  &lt;li&gt;trả về các instance của các loại đã được phạm vi hoá và không được phạm vi hoá.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ApplicationDiContainer&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;applicationScope&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SupervisorJob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;myRepository&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyRepository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;applicationScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyApplication&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;applicationDiContainer&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ApplicationDiContainer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Chú ý: Một container luôn trả về cùng một instance của một loại được giới hạn, và luôn trả về một instance khác cho các loại không được phạm vi hoá. Việc giới hạn các loại vào container tốn kém vì đối tượng được giới hạn vẫn tồn tại trong bộ nhớ cho đến khi thành phần bị hủy, vì vậy chỉ giới hạn những gì thực sự cần thiết.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Trong ví dụ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ApplicationDiContainer&lt;/code&gt; ở trên, tất cả các loại đều được phạm vi hóa. Nếu &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyRepository&lt;/code&gt; không cần phải được phạm vi hóa cho ứng dụng, chúng ta sẽ có:&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ApplicationDiContainer&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// Scoped type. Same instance is always returned&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;applicationScope&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SupervisorJob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Unscoped type. Always returns a different instance&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getMyRepository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyRepository&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyRepository&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;applicationScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;sử-dụng-hilt-trong-ứng-dụng&quot;&gt;Sử dụng Hilt trong ứng dụng&lt;/h2&gt;
+
+&lt;p&gt;Hilt tạo ra những gì bạn có thể thấy trong &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ApplicationDiContainer&lt;/code&gt; (và hơn thế nữa!) lúc biên dịch bằng cách sử dụng các annotation. Hơn nữa, Hilt cung cấp các container cho &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android#generated-components&quot;&gt;hầu hết các class Android&lt;/a&gt; framework không chỉ mỗi class Application.&lt;/p&gt;
+
+&lt;p&gt;Để thiết lập Hilt trong ứng dụng của bạn và tạo container cho lớp &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Application&lt;/code&gt;, hãy đánh dấu class &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Application&lt;/code&gt; của bạn bằng &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@HiltAndroidApp&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@HiltAndroidApp&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyApplication&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Với điều này, ApplicationDiContainer đã sẵn sàng để sử dụng. Chúng ta chỉ cần cho Hilt biết cách cung cấp các instance của các loại khác nhau.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Lưu ý: Trong Hilt, các class Container được tham chiếu như là Components. Container liên kết với class &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Application&lt;/code&gt; được gọi là &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SingletonComponent&lt;/code&gt;. Kiểm tra danh sách tất cả &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android#generated-components&quot;&gt;các Hilt component có sẵn&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;inject-thông-qua-constructor&quot;&gt;Inject thông qua constructor&lt;/h2&gt;
+
+&lt;p&gt;Construction injection là cách dễ nhất để cho Hilt biết cách cung cấp các instance của một loại nếu chúng ta có quyền truy cập vào constructor của một class, chúng ta chỉ cần đánh dấu constructor bằng &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Inject&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Scopes this type to the SingletonComponent&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyRepository&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@Inject&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;constructor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+   &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;externalScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; 
+    &lt;span class=&quot;cm&quot;&gt;/* ... */&lt;/span&gt; 
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Điều này cho biết với Hilt rằng để cung cấp một instance của class &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyRepository&lt;/code&gt;, cần phải truyền một instance của &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; như một phụ thuộc. Hilt tạo code tại thời điểm biên dịch để đảm bảo các phụ thuộc được đáp ứng và truyền vào khi tạo một instance của một loại hoặc thông báo lỗi nếu nó không có đủ thông tin. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Singleton&lt;/code&gt; được sử dụng để phạm vi hoá lớp này đến &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SingletonContainer&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Tại thời điểm này, Hilt không biết cách đáp ứng sự phụ thuộc &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; vì chúng ta chưa nói cho Hilt biết làm thế nào. Các phần tiếp theo sẽ giải thích cách chúng ta có thể cho Hilt biết cần truyền gì làm phụ thuộc.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Lưu ý: Hilt cung cấp một annotation khác nhau cho các loại scope cho các thành phần Hilt khác nhau. Hãy kiểm tra &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android#component-scopes&quot;&gt;danh sách tất cả các phạm vi thành phần có sẵn&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;bindings&quot;&gt;Bindings&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Binding&lt;/em&gt;&lt;/strong&gt; là một thuật ngữ phổ biến trong Hilt để chỉ thông tin mà Hilt biết về cách cung cấp các instance của một loại như một phụ thuộc. Chúng ta có thể nói rằng chúng ta đã thêm một binding vào Hilt với chú thích &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Inject&lt;/code&gt; của đoạn code ở trên.&lt;/p&gt;
+
+&lt;p&gt;Các binding qua &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android#component-hierarchy&quot;&gt;cấu trúc thành phần của Hilt&lt;/a&gt;. Các binding có sẵn trong &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SingletonComponent&lt;/code&gt; cũng có sẵn trong &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ActivityComponent&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Các binding cho các loại không được phạm vi hoá (một ví dụ có thể là đoạn code &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyRepository&lt;/code&gt; ở trên nếu nó không được ghi chú với &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Singleton&lt;/code&gt;), có sẵn trong tất cả các thành phần của Hilt. Các binding được phạm vi hoá cho một thành phần, như &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyRepository&lt;/code&gt; được ghi chú với &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Singleton&lt;/code&gt;, có sẵn cho thành phần có phạm vi và các thành phần ở dưới nó trong cấu trúc.&lt;/p&gt;
+
+&lt;h2 id=&quot;cung-cấp-loại-với-module&quot;&gt;Cung cấp loại với module&lt;/h2&gt;
+
+&lt;p&gt;Như đã đề cập ở trên, chúng ta cần cho Hilt biết cách để đáp ứng mối phụ thuộc vào &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt;. Tuy nhiên, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; là một loại interface đến từ một thư viện bên ngoài, vì vậy chúng ta không thể sử dụng việc tiêm (injection) thông qua constructor như trước đây với class &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyRepository&lt;/code&gt;. Phương pháp thay thế là cho Hilt biết code nào để chạy khi cung cấp một instance của một loại sử dụng Modules:&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@InstallIn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SingletonComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Module&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutinesScopesModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Provide always the same instance &lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesCoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// Run this code when providing an instance of CoroutineScope&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SupervisorJob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Default&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Phương thức &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Provides&lt;/code&gt; được chú thích bằng &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Singleton&lt;/code&gt; để Hilt luôn trả về cùng một instance của CoroutineScope đó. Điều này bởi vì bất kỳ công việc nào cần tuân theo vòng đời của &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Application&lt;/code&gt; đều nên được tạo ra bằng cùng một instance của &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; tuân theo vòng đời của &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Application&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Các module Hilt được chú thích bằng &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@InstallIn&lt;/code&gt; để chỉ ra rằng việc binding được cài đặt trong thành phần Hilt nào (và các thành phần bên dưới trong cấu trúc phân cấp). Trong trường hợp của chúng ta, vì &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; của ứng dụng cần thiết cho &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyRepository&lt;/code&gt; được phạm vi hoá trong &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SingletonComponent&lt;/code&gt;, việc binding này cũng cần được cài đặt trong &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SingletonComponent&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Trong cách nói của Hilt, chúng ta có thể nói rằng chúng ta đã thêm một &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; binding, vì bây giờ, Hilt biết cách cung cấp các instance của &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Tuy nhiên, đoạn code trên có thể được cải thiện. Hardcoding dispatchers là một thói quen không tốt trong coroutines, chúng ta nên inject chúng để &lt;strong&gt;làm cho chúng có thể cấu hình và làm cho việc kiểm thử dễ dàng hơn&lt;/strong&gt;. Theo đoạn code trước đó, chúng ta có thể tạo một module Hilt mới để cho phép nó biết Dispatcher nào để inject cho mỗi trường hợp: main, default và IO.&lt;/p&gt;
+
+&lt;h2 id=&quot;cung-cấp-các-implementation-cho-coroutinedispatcher&quot;&gt;Cung cấp các implementation cho CoroutineDispatcher&lt;/h2&gt;
+
+&lt;p&gt;Chúng ta phải cung cấp các implementation khác nhau cho cùng một loại là &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt;. Nói cách khác, chúng ta cần các ràng buộc khác nhau cho cùng một loại.&lt;/p&gt;
+
+&lt;p&gt;Chúng ta sử dụng &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android#multiple-bindings&quot;&gt;qualifier (bộ điều kiện)&lt;/a&gt; để cho Hilt biết rằng mỗi lần nào sử dụng binding hoặc implementation nào. Qualifier chỉ là các annotation mà bạn và Hilt sử dụng để xác định các binding cụ thể. Hãy tạo một qualifier cho mỗi implementation của CoroutineDispatcher:&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// CoroutinesQualifiers.kt file&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Retention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;AnnotationRetention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RUNTIME&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Qualifier&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;annotation&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DefaultDispatcher&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Retention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;AnnotationRetention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RUNTIME&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Qualifier&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;annotation&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IoDispatcher&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Retention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;AnnotationRetention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RUNTIME&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Qualifier&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;annotation&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MainDispatcher&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@Retention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;AnnotationRetention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;BINARY&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Qualifier&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;annotation&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MainImmediateDispatcher&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Sau đó, những qualifier này chú thích các phương thức &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Provides&lt;/code&gt; khác nhau để xác định một binding cụ thể trong các mô-đun Hilt. Bộ qualifier &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@DefaultDispatcher&lt;/code&gt; chú thích phương thức trả về bộ điều phối mặc định, và cứ thế.&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@InstallIn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SingletonComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Module&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutinesDispatchersModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@DefaultDispatcher&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesDefaultDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Default&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@IoDispatcher&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesIoDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;IO&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@MainDispatcher&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesMainDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Main&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@MainImmediateDispatcher&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesMainImmediateDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;immediate&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Lưu ý rằng những &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatchers&lt;/code&gt; này không cần được phạm vi hoá trong &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SingletonComponent&lt;/code&gt;. Mỗi khi cần các phụ thuộc này, Hilt gọi phương thức &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@Provides&lt;/code&gt; và trả về &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt; tương ứng. Tạo lại vẫn OK.&lt;/p&gt;
+
+&lt;h2 id=&quot;cung-cấp-coroutine-scope-ở-mức-application&quot;&gt;Cung cấp Coroutine Scope ở mức Application&lt;/h2&gt;
+
+&lt;p&gt;Để loại bỏ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt; được hard code từ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; ở mức Application trước đó của chúng ta, chúng ta cần inject vào dispatcher mặc định do Hilt cung cấp. Để làm điều đó, chúng ta có thể truyền vào loại mà chúng ta muốn inject, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt;, bằng cách sử dụng qualifier tương ứng, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@DefaultDispatcher&lt;/code&gt;, như một phụ thuộc trong phương thức cung cấp &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineScope&lt;/code&gt; của ứng dụng.&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@InstallIn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SingletonComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Module&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutinesScopesModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesCoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;nd&quot;&gt;@DefaultDispatcher&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;defaultDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SupervisorJob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;defaultDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Vì Hilt có nhiều ràng buộc cho loại &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt;, chúng ta làm rõ nó sử dụng chính xác loại nào bằng cách sử dụng chú thích &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@DefaultDispatcher&lt;/code&gt; khi &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt; được sử dụng làm phụ thuộc.&lt;/p&gt;
+
+&lt;h2 id=&quot;qualifier-cho-applicationscope&quot;&gt;Qualifier cho ApplicationScope&lt;/h2&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Retention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;AnnotationRetention&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;RUNTIME&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Qualifier&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;annotation&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ApplicationScope&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@InstallIn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SingletonComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Module&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutinesScopesModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@ApplicationScope&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesCoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;nd&quot;&gt;@DefaultDispatcher&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;defaultDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;):&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SupervisorJob&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;defaultDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Vì &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MyRepository&lt;/code&gt; phụ thuộc vào scope này, rõ ràng scope bên ngoài nào sử dụng như triển khai sau:&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@Singleton&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyRepository&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@Inject&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;constructor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@ApplicationScope&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;externalScope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineScope&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;cm&quot;&gt;/* ... */&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;thay-thế-replacing-dispatchers-cho-instrumentation-test&quot;&gt;Thay thế Replacing Dispatchers cho instrumentation test&lt;/h2&gt;
+
+&lt;p&gt;Chúng ta đã nói trước đó rằng chúng ta nên inject dispatchers để làm cho việc kiểm thử dễ dàng hơn và có hoàn toàn kiểm soát được những gì đang xảy ra. Đối với các bài kiểm tra instrumentation, chúng ta muốn làm cho Espresso đợi cho đến khi các coroutines hoàn thành.&lt;/p&gt;
+
+&lt;p&gt;Thay vì tạo một &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutineDispatcher&lt;/code&gt; tùy chỉnh với một số Espresso Idling resource để khiến nó chờ các coroutine hoàn thành, chúng ta có thể tận dụng API AsyncTask. Mặc dù AsyncTask đã bị loại bỏ trong Android API 30, Espresso kết nối vào thread pool của nó để kiểm tra tính trống rỗng. Do đó, bất kỳ coroutine nào cần được thực thi trong một luồng nền có thể được thực thi trong thread pool của AsyncTask.&lt;/p&gt;
+
+&lt;p&gt;Sử dụng API &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TestInstallIn&lt;/code&gt; của Hilt để Hilt cung cấp một cách triển khai khác của một loại trong các bài test. Tương tự như cách chúng ta cung cấp các Dispatcher khác nhau ở trên, chúng ta có thể tạo một file mới trong gói &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;androidTest&lt;/code&gt; để cung cấp các triển khai khác nhau cho những Dispatcher đó.&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// androidTest/projectPath/TestCoroutinesDispatchersModule.kt file&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@TestInstallIn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;components&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;SingletonComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;replaces&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;CoroutinesDispatchersModule&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Module&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TestCoroutinesDispatchersModule&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@DefaultDispatcher&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesDefaultDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;AsyncTask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;THREAD_POOL_EXECUTOR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;asCoroutineDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@IoDispatcher&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesIoDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt;
+        &lt;span class=&quot;nc&quot;&gt;AsyncTask&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;THREAD_POOL_EXECUTOR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;asCoroutineDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@MainDispatcher&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Provides&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;providesMainDispatcher&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CoroutineDispatcher&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Dispatchers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Main&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Với mã code ở trên, chúng ta đang làm cho Hilt “quên” &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CoroutinesDispatchersModule&lt;/code&gt; được sử dụng trong production code trong các bài test. Module đó sẽ được thay thế bằng &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TestCoroutinesDispatchersModule&lt;/code&gt; sử dụng thread pool của &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Async Task&lt;/code&gt; cho công việc cần xảy ra ở nền, và &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Dispatchers.Main&lt;/code&gt; cho công việc cần xảy ra trên luồng chính mà Espresso cũng đang chờ.&lt;/p&gt;
+
+&lt;p&gt;Để biết thêm thông tin về kiểm thử, hãy xem &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-testing&quot;&gt;hướng dẫn kiểm thử của Hilt&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Ví dụ của bài viết trên được áp dụng tại &lt;a href=&quot;https://github.com/kendis1002/AN_realtime_location_flow_hilt&quot;&gt;đây&lt;/a&gt; các bạn có thể tham khảo.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Trong bài viết này, bạn đã học cách tạo một CoroutineScope có phạm vi ứng dụng bằng cách sử dụng Hilt, inject nó như một phụ thuộc, inject các trường hợp khác nhau của CoroutineDispatcher, và thay thế các triển khai của chúng trong các bài kiểm tra.&lt;/p&gt;</content>
+
+      
+      
+      
+      
+      
+
+      <author>
+          <name>Kendis</name>
+        
+        
+      </author>
+
+      
+
+      
+        <category term="coroutine" />
+      
+        <category term="hilt" />
+      
+
+      
+        <summary type="html">Inject một CoroutineScope phạm vi mức Application sử dụng Hilt.</summary>
+      
+
+      
+      
+    </entry>
+  
+    <entry>
+      <title type="html">Hilt đã stable. Đơn giản hoá việc dependency injection trong Android</title>
+      <link href="/android_blog/hilt-stable" rel="alternate" type="text/html" title="Hilt đã stable. Đơn giản hoá việc dependency injection trong Android" />
+      <published>2023-12-24T10:18:00+00:00</published>
+      <updated>2023-12-24T10:18:00+00:00</updated>
+      <id>/android_blog/hilt-stable</id>
+      <content type="html" xml:base="/android_blog/hilt-stable">&lt;p&gt;Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android&quot;&gt;Hilt&lt;/a&gt;, &lt;a href=&quot;https://developer.android.com/training/dependency-injection&quot;&gt;Giải pháp Dependency Injection&lt;/a&gt; của Jetpack cho Android app, đã chính thức &lt;strong&gt;stable&lt;/strong&gt; và sẵn sàng để sử dụng trong môi trường &lt;strong&gt;production&lt;/strong&gt;! Hilt hứa hẹn sự đơn giản, ít code thừa hơn Dagger, được thiết kế dành riêng cho Android và tích hợp liền mạch với nhiều thư viện Jetpack khác. Nhiều công ty đã bắt đầu áp dụng Hilt trong các ứng dụng của họ.&lt;/p&gt;
+
+&lt;p&gt;Kể từ khi được phát hành dưới dạng alpha vào tháng 6 năm 2020 với sứ mệnh thiết lập một phương thức DI tiêu chuẩn cho các ứng dụng Android, Hilt đã nhận được nhiều phản hồi từ các nhà phát triển. Điều này không chỉ giúp cải thiện thư viện mà còn cho thấy chúng ta đang đi đúng hướng trong việc giải quyết những vấn đề nan giải.&lt;/p&gt;
+
+&lt;p&gt;Thay vì tự tạo sơ đồ phụ thuộc, tiêm thủ công và truyền các kiểu qua lại, Hilt tự động tạo tất cả mã này cho bạn thông qua chú thích khi biên dịch. Hilt giúp bạn tận dụng tối đa các nguyên tắc hay của DI bằng cách xử lý những công việc phức tạp và tự động tạo mã boilerplate mà bạn vốn phải viết. Ngoài ra, với khả năng tích hợp hoàn toàn với Android, Hilt tự động quản lý vòng đời của các sơ đồ phụ thuộc liên quan đến các lớp framework Android.&lt;/p&gt;
+
+&lt;p&gt;Hãy cùng xem Hilt hoạt động như thế nào qua một ví dụ đơn giản! Sau khi &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-android#setup&quot;&gt;thiết lập Hilt&lt;/a&gt;, sử dụng nó trong dự án mới để tiêm một ViewModel vào một Activity chỉ đơn giản bằng cách thêm một vài chú thích vào mã như sau:&lt;/p&gt;
+
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@HiltAndroidApp&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Setup Hilt in your app&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MyApplication&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Application&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Make Hilt aware of this ViewModel&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@HiltViewModel&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LoginViewModel&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@Inject&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;constructor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;savedStateHandle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SavedStateHandle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/* ... Other dependencies Hilt takes care of ... */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ViewModel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&quot;c1&quot;&gt;// Make the activity use the right ViewModel factory and&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// inject other dependencies&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@AndroidEntryPoint&lt;/span&gt; 
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LoginActivity&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;AppCompatActivity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;loginViewModel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;LoginViewModel&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viewModels&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;override&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Bundle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;?)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;onCreate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;savedInstanceState&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// loginViewModel is ready to be used&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Ngoài những lợi ích đã nêu ở trên, tại sao bạn nên sử dụng Hilt trong ứng dụng Android của mình?&lt;/p&gt;
+
+&lt;h2 id=&quot;đơn-giản-hơn-dagger&quot;&gt;Đơn giản hơn Dagger&lt;/h2&gt;
+
+&lt;p&gt;Hilt được xây dựng dựa trên Dagger, một thư viện tiêm phụ thuộc (DI) phổ biến, do đó thừa hưởng những ưu điểm như tính chính xác thời gian biên dịch, hiệu suất thời gian chạy, khả năng mở rộng và hỗ trợ Android Studio mà Dagger cung cấp. Một số chú thích của Dagger, ví dụ như @Inject để hướng dẫn Dagger và Hilt cách cung cấp một thực thể của một kiểu, vẫn được sử dụng thường xuyên trong Hilt. Tuy nhiên, Hilt đơn giản hơn Dagger!&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Tôi rất khuyến khích sử dụng Dagger để thực hiện việc DI trong ứng dụng Android. Tuy nhiên, Dagger gốc có thể tạo ra quá nhiều không gian cho sự sáng tạo. Khi điều đó kết hợp với sự phức tạp của các thành phần nhận thức vòng đời khác nhau trong phát triển Android, có rất nhiều khả năng rơi vào các vấn đề như rò rỉ bộ nhớ: ví dụ, vô tình truyền các phụ thuộc có phạm vi hoạt động từ Activity vào ViewModels. Hilt, với tính chất có quan điểm cụ thể và được thiết kế đặc biệt cho Android, giúp bạn tránh một số rủi ro khi sử dụng Dagger gốc.” — Marcelo Hernandez, Kỹ sư Phần mềm Cấp cao, Tinder&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Nếu bạn đang sử dụng Dagger, bạn có thể hoàn toàn di chuyển từ Dagger sang Hilt theo từng phần trong ứng dụng Android của mình, Dagger và Hilt có thể tồn tại đồng thời trong ứng dụng, cho phép bạn tận hưởng những lợi ích của Hilt từng bước.&lt;/p&gt;
+
+&lt;h2 id=&quot;ít-boilerplate-code&quot;&gt;Ít boilerplate code&lt;/h2&gt;
+
+&lt;p&gt;Hilt có tính định hướng rõ ràng, tức là nó đưa ra những quyết định cho bạn để bạn không phải viết nhiều mã. Hilt xác định các thành phần tiêu chuẩn, hoặc sơ đồ phụ thuộc, được tích hợp hoàn toàn với các lớp framework Android như Application, Activity, Fragment và View. Ngoài ra, nó cũng cung cấp các scope annotation để xác định phạm vi của các thực thể đối với các thành phần đó.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Hilt tự động tạo ứng dụng kiểm thử và thành phần kiểm thử thông qua chú thích @HiltAndroidTest. Sau khi di chuyển sang Hilt, chúng tôi đã giảm được từ 20% đến 40% lượng mã boilerplate cần thiết để kết nối mã kiểm thử!” - Jusun Lee, Kỹ sư Phần mềm, YouTube&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Chúng tôi chỉ mới bắt đầu trong việc di chuyển sang Hilt. Tuy nhiên, một trong những mô-đun đã được di chuyển, chúng tôi nhận thấy sự thay đổi +78/-182 dòng mã cho thư viện này.” - Marcelo Hernandez, Kỹ sư Phần mềm Cấp cao, Tinder&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;tích-hợp-với-các-thư-viện-jetpack-khác&quot;&gt;Tích hợp với các thư viện Jetpack khác&lt;/h2&gt;
+
+&lt;p&gt;Bạn có thể sử dụng các thư viện Jetpack yêu thích của mình với Hilt ngay lập tức. Hiện tại, Android cung cấp hỗ trợ inject trực tiếp cho ViewModel, WorkManager, Navigation và Compose.&lt;/p&gt;
+
+&lt;p&gt;Để tìm hiểu thêm về sự hỗ trợ Jetpack, hãy tham khảo &lt;a href=&quot;https://developer.android.com/training/dependency-injection/hilt-jetpack&quot;&gt;tài liệu&lt;/a&gt;.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;“Tôi thực sự đánh giá cao cách Hilt hoạt động ngay lập tức với ViewModel và cách nó loại bỏ mã boilerplate phải thiết lập ViewModel.Factory với Dagger thuần.” — Marcelo Hernandez, Kỹ sư Phần mềm Cấp cao, Tinder&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;nguồn-để-tìm-hiểu-về-hilt&quot;&gt;Nguồn để tìm hiểu về Hilt&lt;/h2&gt;
+
+&lt;p&gt;Hilt là giải pháp dependency injection (DI) được Jetpack đề xuất cho các ứng dụng Android. Bạn có thể tìm hiểu thêm về Hilt và bắt đầu sử dụng nó trong các ứng dụng của mình thông qua các tài liệu sau:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Lợi ích của dependency injection: Tìm hiểu lý do tại sao nên sử dụng DI trong phát triển ứng dụng Android tại &lt;a href=&quot;https://developer.android.com/training/dependency-injection&quot;&gt;đây&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;Tài liệu Hilt: Tham khảo &lt;a href=&quot;https://manuelvivo.dev/hilt-stable#:~:text=injection%20here.-,Documentation,-to%20learn%20how&quot;&gt;tài liệu chính thức&lt;/a&gt; để nắm được cách sử dụng Hilt trong ứng dụng của bạn.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://dagger.dev/hilt/migration-guide&quot;&gt;Hướng dẫn chuyển đổi từ Dagger sang Hilt&lt;/a&gt;: Nếu bạn đang sử dụng Dagger, tài liệu này sẽ hướng dẫn bạn cách chuyển sang Hilt từng bước.&lt;/li&gt;
+  &lt;li&gt;Codelabs học Hilt theo từng bước: &lt;a href=&quot;https://codelabs.developers.google.com/codelabs/android-hilt&quot;&gt;Hướng dẫn sử dụng Hilt trong ứng dụng Android&lt;/a&gt; và &lt;a href=&quot;https://codelabs.developers.google.com/codelabs/android-dagger-to-hilt&quot;&gt;Chuyển đổi từ Dagger sang Hilt&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;Code sample: Xem Hilt hoạt động trong các ứng dụng thực tế như &lt;a href=&quot;https://github.com/google/iosched&quot;&gt;Google I/O 2020&lt;/a&gt; và &lt;a href=&quot;https://github.com/android/sunflower/&quot;&gt;Sunflower&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.android.com/images/training/dependency-injection/hilt-annotations.pdf&quot;&gt;Cheat sheet&lt;/a&gt;: Tổng hợp nhanh các chú thích của Hilt và Dagger và cách sử dụng chúng.&lt;/li&gt;
+&lt;/ul&gt;</content>
+
+      
+      
+      
+      
+      
+
+      <author>
+          <name>Kendis</name>
+        
+        
+      </author>
+
+      
+
+      
+        <category term="hilt" />
+      
+
+      
+        <summary type="html">Hilt, Giải pháp Dependency Injection của Jetpack cho Android app, giờ đã stable.</summary>
+      
+
+      
+      
+    </entry>
+  
+</feed>
