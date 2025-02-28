@@ -11,251 +11,134 @@ subclass: 'post'
 author: kendis
 ---
 
-Học cách custom view trong Jetpack Compose với ví dụ cụ thể là 1 cardview.
+derivedStateOf VS. remember(key) - Chúng nó rất khác nhau đấy.
 
-Từng lúc, nhà thiết kế trong nhóm chúng tôi lại nảy ra một ý tưởng tuyệt vời cho ứng dụng di động mà chúng tôi đang làm việc. Nhưng rồi, kinh hoàng ập đến: nó không dựa trên một thành phần gốc mà chúng ta có thể dễ dàng tìm thấy trong Hướng dẫn Material Design hoặc iOS Human Interface Design Guidelines. Nó mới mẻ, nó mới, nó tùy chỉnh.
+Trong Jetpack Compose, derivedStateOf và remember(key) là hai khái niệm quan trọng giúp tối ưu hiệu suất và quản lý trạng thái hiệu quả.
 
-Là một developer, đây chính là thời điểm chính xác khi bạn bắt đầu gãi đầu hoặc, ở mức tốt nhất, đề xuất một giải pháp thay thế bằng native. Nhưng nếu bạn có thể triển khai nó như vậy, một cách có thể tái sử dụng? Và không chỉ vậy, nếu bạn còn có thể tích hợp thêm một số hiệu ứng vào đó?
+## Khái niệm và cách sử dụng của derivedStateOf và remember
 
-Hôm nay, chúng ta sẽ khám phá cách sử dụng Compose để dễ dàng triển khai một UI tùy chỉnh cao cấp, mang ý tưởng đột phát của nhà thiết kế thành hiện thực và tạo ra một trải nghiệm hình ảnh đáng kinh ngạc.
-
-## Design
-Design mà chúng ta sẽ làm việc trong bài tập này là một yếu tố hấp dẫn từ ứng dụng Ví Crypto, được tạo một cách tinh tế bởi Roman Lieliushkin. Bạn có thể kiểm tra công việc thiết kế di động tuyệt vời của anh ấy tại đây: https://www.behance.net/ozmoweb
-
-![Design](assets/images/card-view-1.png)
-
-Cụ thể hơn, chúng ta sẽ tập trung vào việc triển khai các card view ở giữa màn hình. Những card này sẽ hiển thị giá trị của một đồng tiền điện tử cũng như một số chi tiết bổ sung.
-
-![Crypto Card](assets/images/card-view-2.png)
+**derivedStateOf** là một cách để tạo ra một trạng thái (**state**) mới dựa trên các giá trị hiện tại của một hoặc nhiều state khác mà bạn đã khai báo trong **Compose**. Mục đích chính của **derivedStateOf** là để tính toán lại giá trị của trạng thái dựa trên sự thay đổi của các trạng thái phụ thuộc mà không phải thực hiện tính toán lại mỗi lần khi không cần thiết. Điều này giúp tối ưu hóa hiệu suất.
 
 
+**remember** là một hàm trong **Compose** được sử dụng để lưu trữ giá trị hoặc trạng thái qua các lần **recompose** (thay đổi giao diện). Khi một giá trị hoặc state được lưu trữ bằng **remember**, **Compose** sẽ nhớ lại giá trị đó giữa các lần vẽ lại UI, giúp tránh việc khởi tạo lại các giá trị không cần thiết, do đó cải thiện hiệu suất. Bạn cũng có thể sử dụng remember với một key để chỉ định trạng thái được "nhớ" theo một điều kiện cụ thể.
 
-## Cơ bản
+## Study case
 
-Bước đầu tiên chúng ta thực hiện khi xử lý một UI tùy chỉnh như thế này là tìm kiếm bản đồng bộ gần nhất có thể phục vụ như một nền tảng. Cách tiếp cận này giúp chúng ta giảm thiểu lượng công việc cần thiết. May mắn thay, trong trường hợp này, nó khá đơn giản. Chúng ta có thể sử dụng một Card cơ bản, cung cấp cấu trúc cơ bản của góc bo tròn cho thành phần của chúng ta.
+Chúng ta sẽ đến với ví dụ sau để hiểu rõ hơn:
 
-```kotlin
-val cardSize = 150.dp
-Card(
-    modifier = Modifier.size(cardSize).clip(RoundedCornerShape(15.dp)),
-    colors = CardDefaults.cardColors(containerColor = Color.Black)
-) { ... }
 ```
-
-![Base card view](assets/images/card-view-3.png)
-
-Bây giờ, hãy đến với canvas và suy nghĩ xem làm cách nào chúng ta có thể tạo ra hình dạng độc đáo này bằng cách sử dụng các hình khác.
-
-Hợp tác chặt chẽ với designer sẽ rất có lợi ở thời điểm này. Họ có thể cung cấp những thông tin quý giá về việc tạo ra yếu tố tùy chỉnh, giúp chúng ta dễ dàng dịch và tích hợp nó vào tác phẩm tùy chỉnh của chúng ta.
-
-Kế hoạch hiện tại là sử dụng các hình dạng khác nhau để "che" hoặc "cắt" thẻ gốc để đạt được hình dạng tùy chỉnh mong muốn. Chúng ta sẽ bắt đầu bằng cách tạo ra các hình vuông sẽ được điền bằng màu nền của giao diện người dùng của chúng ta, tạo ảo ảnh như đang bị cắt.
-
-## Canvas
-
-Trong Card của chúng ta, chúng ta sẽ sử dụng ```Canvas``` Composable, một phần quan trọng trong kế hoạch phát triển một thành phần tùy chỉnh mới.
-
-```Canvas``` cho phép chúng ta đặt các **hình dạng** hoặc **đường thẳng** bất kỳ **kích thước** và **màu sắc** tại bất kỳ cặp tọa độ x, y nào. Bước đầu tiên của chúng ta là thêm các hộp màu trắng hình chữ nhật để loại bỏ các phần không cần thiết của Card ban đầu, được thực hiện thông qua việc sử dụng drawRect().
-
-```kotlin
-val cardSize = 150.dp
-Card(
-    modifier = Modifier.size(cardSize).clip(RoundedCornerShape(15.dp)),
-    colors = CardDefaults.cardColors(containerColor = Color.Black)
-) {
-    Canvas(modifier = Modifier.size(cardSize), onDraw = {
-        drawRect(
-            color = backgroundColor,
-            topLeft = Offset(x = size.width - radius + (radius * 0.2f), y = 12f),
-            size = size / 2f,
-        )
-
-...
-```
-
-![Canvas with Rect](assets/images/card-view-4.png)
-
-```kotlin	
-val cardSize = 150.dp
-Card(
-    modifier = Modifier.size(cardSize).clip(RoundedCornerShape(15.dp)),
-    colors = CardDefaults.cardColors(containerColor = Color.Black)
-) {
-    Canvas(modifier = Modifier.size(cardSize), onDraw = {
-        drawRect(
-            color = backgroundColor,
-            topLeft = Offset(x = size.width - radius + (radius * 0.2f), y = 12f),
-            size = size / 2f,
-        )
-
-        drawRect(
-            color = backgroundColor,
-            topLeft = Offset(x = cardSize.value * 1.3f, y = cardSize.value * -1f),
-            size = size / 2f,
-        )
-
-...
-```
-
-![More rect](assets/images/card-view-5.png)
-
-Để tạo hình dáng cong ở phần cắt phía trên, tôi đã sử dụng ba hình tròn được đặt một cách chiến lược xung quanh góc. Bằng cách pha trộn một phần màu nền (trắng) với màu thẻ (đen), nó đã thành công trong việc tạo hình dáng cong cho phần trên bên trái của thẻ. May mắn thay, có một cách dễ dàng để vẽ hình tròn trên Canvas bằng cách sử dụng drawCircle().
-
-![Draw circles](assets/images/card-view-6.png)
-
-```kotlin
-		drawCircle(
-        color = Color.Red,
-        radius = cardSize.value / 1.5f,
-        center = Offset(
-            x = size.width - radius + (radius * 0.2f),
-            y = radius - (radius * 0.2f)
-        )
-    )
-
-    drawCircle(
-        color = Color.Green,
-        radius = radius * 0.8f,
-        center = Offset(
-            x = size.width / 2.14f,
-            y = radius - (radius * 0.2f)
-        )
-    )
-
-    drawCircle(
-        color = Color.Green,
-        radius = radius * 0.8f,
-        center = Offset(
-            x = size.width - radius + (radius * 0.2f),
-            y = radius + (radius * 1.93f)
-        )
-    )
-```
-
-Tôi đang highlight chúng ở đây để dễ nhìn nhưng ý tưởng là những cái màu xanh sẽ được chuyển thành màu card và cái màu đỏ sẽ được tô màu nền.
-
-![Change color](assets/images/card-view-7.png)
-
-Cuối cùng, hãy thêm backgroud hình tròn mà thiết kế gốc đã có để hiển thị biểu tượng crypto. Để làm điều này, chúng ta thêm một hình tròn nữa.
-
-![Add crypto icon background](assets/images/card-view-8.png)
-
-```kotlin
-      drawCircle(
-          color = bubbleColor,
-          radius = radius * 0.8f,
-          center = Offset(
-              x = size.width - radius + (radius * 0.2f),
-              y = radius - (radius * 0.2f)
-          )
-      )
-```
-
-Toàn bộ Canvas:
-
-```kotlin
-Canvas(modifier = Modifier.size(cardSize), onDraw = {
-      drawRect(
-          color = backgroundColor,
-          topLeft = Offset(x = size.width - radius + (radius * 0.2f), y = 12f),
-          size = size / 2f,
-      )
-
-      drawRect(
-          color = backgroundColor,
-          topLeft = Offset(x = cardSize.value * 1.3f, y = cardSize.value * -1f),
-          size = size / 2f,
-      )
-
-      drawCircle(
-          color = backgroundColor,
-          radius = cardSize.value / 1.5f,
-          center = Offset(
-              x = size.width - radius + (radius * 0.2f),
-              y = radius - (radius * 0.2f)
-          )
-      )
-
-      drawCircle(
-          color = cardBackground,
-          radius = radius * 0.8f,
-          center = Offset(
-              x = size.width / 2.14f,
-              y = radius - (radius * 0.2f)
-          )
-      )
-
-      drawCircle(
-          color = cardBackground,
-          radius = radius * 0.8f,
-          center = Offset(
-              x = size.width - radius + (radius * 0.2f),
-              y = radius + (radius * 1.93f)
-          )
-      )
-
-      drawCircle(
-          color = bubbleColor,
-          radius = radius * 0.8f,
-          center = Offset(
-              x = size.width - radius + (radius * 0.2f),
-              y = radius - (radius * 0.2f)
-          )
-      )
-
-  })
-```
-
-Khi hiển thị Composable này trên bề mặt màu Trắng, các vết còn lại của Thẻ mà chúng ta đã che phủ có thể nhìn thấy một chút ở góc phải trên cùng.
-
-Để sửa nó, chúng ta có thể bọc toàn bộ Card vào một Box và thêm một Canvas thứ hai là phần tử cuối cùng, che phủ khu vực đó bằng drawRect khác và đưa hình tròn màu xám lên trên đó.
-
-```kotlin
-Canvas(modifier = Modifier.size(cardSize), onDraw = {
-    drawRect(
-        color = backgroundColor,
-        topLeft = Offset(x = size.width - (cardSize.value / 2f) - 7.5f, y = 0f),
-        size = size / 5f
-    )
-
-    drawCircle(
-        color = bubbleColor,
-        radius = radius * 0.8f,
-        center = Offset(
-            x = size.width - radius + (radius * 0.2f),
-            y = radius - (radius * 0.2f)
-        )
-    )
-})
-```
-
-```kotlin
-...
-Box {
-        Card(
-...
-```
-
-Và chúng ta cũng làm cho Composable của chúng ta có thể tùy chỉnh để nền và bubble màu xám có thể dễ dàng điều chỉnh để phù hợp với các style và thêm khác nhau.
-
-```kotlin
 @Composable
-fun CryptoCardBackground(
-    cardBackground: Color = Color.Black,
-    bubbleColor: Color = Color(0xFFf3f3f3),
-    backgroundColor: Color = Color.White,
-    cardSize: Dp = 150.dp,
+fun ScrollToTopButton(
+    state: LazyListState
 ) {
+    val scope = rememberCoroutineScope()
 
-  ...
+	// Implement showScrollToTopButton here
 
+    if(showScrollToTopButton) {
+        FloatingActionButton(onClick = {
+            scope.launch {
+                state.animateScrollToItem(0)
+            }
+        }) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowUp,
+                contentDescription = null
+            )
+        }
+    }
+}
+```
+Giả sử như chúng ta có 1 list các item hiển thị trong ```LazyColumn```.
+
+Đoạn code trên là một **Composable** function trong **Jetpack Compose**, có chức năng hiển thị một nút "Scroll to Top" (cuộn lên đầu) dưới dạng một **FloatingActionButton**. Mục đích của nút này là để khi nhấn vào nó, danh sách cuộn về đầu.
+
+Function trên nhận vào ```lazyListState``` của ```Lazycolumn```.
+
+Nhiệm vụ của chúng ta sẽ implement chức năng hiển thị nút ```FloatingActionButton``` lên nếu item đầu tiên của ```LazyColumn``` là item với index là 5 hoặc lớn hơn.
+
+
+![Study case](assets/images/derived-state-of-1.png)
+
+Trước tiên trong trường hợp này nhiều bạn có thể nghĩ đến remember và implement như sau:
+
+```
+@Composable
+fun ScrollToTopButton(
+    state: LazyListState
+) {
+    val scope = rememberCoroutineScope()
+
+	val showScrollToTopButton = remember(state.firstVisibleItemIndex) {
+	    state.firstVisibleItemIndex >= 5
+	}
+
+    if(showScrollToTopButton) {
+        FloatingActionButton(onClick = {
+            scope.launch {
+                state.animateScrollToItem(0)
+            }
+        }) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowUp,
+                contentDescription = null
+            )
+        }
+    }
 }
 ```
 
-![Complete background](assets/images/card-view-9.png)
+Và bấm Run.
 
-Vậy là chúng ta đã làm xong phần khó nhất của Compose View này rồi, việc còn lại sẽ bọc lại với Box, chúng ta sẽ có UI như mong muốn.
+Mọi thứ chạy ổn, nhưng khoan. Có 1 thứ lạ. Ta thấy khi scroll ```FloatingActionButton``` recompose quá nhiều lần. Có vẻ không ổn.
 
-Code sẽ ở đây: https://github.com/kendis1002/AN_custom_card_view
+Hãy thử sang **derivedStateOf**
+
+```
+@Composable
+fun ScrollToTopButton(
+    state: LazyListState
+) {
+    val scope = rememberCoroutineScope()
+
+    val showScrollToTopButton by remember() {
+        derivedStateOf {
+            state.firstVisibleItemIndex >= 5
+        }
+    }
+
+    if(showScrollToTopButton) {
+        FloatingActionButton(onClick = {
+            scope.launch {
+                state.animateScrollToItem(0)
+            }
+        }) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowUp,
+                contentDescription = null
+            )
+        }
+    }
+}
+```
+
+Và Run lại.
+
+Và chúng ta sẽ thấy hiện tượng trên sẽ không còn.
+
+Vậy thì lý do là gì?
+
+2 function này nghe có vẻ mục đích của nó là giống nhau. Đều lắng nghe thay đổi từ lazyListState và rồi tạo cập nhật giá trị cho ```showScrollToTopButton```.
+
+remember trong trường hợp này sẽ quan sát lắng nghe giá trị của ```state.firstVisibleItemIndex``` mà chúng ta pass vào. Ngay khi param này thay đổi thì nó sẽ nhận thay đổi và cập nhật giá trị cho ```showScrollToTopButton```, vì vậy Compose phải recompose lại.
+
+Ta nhận thấy giá trị của ```showScrollToTopButton``` chỉ là Boolean thôi và nó chỉ thay đổi khi đúng điều kiện nhất định, trong trường hợp này là ```state.firstVisibleItemIndex >= 5 ?```. Không nên cứ mỗi khi first Vì thế ```state.firstVisibleItemIndex``` thay đổi thì lại cập nhật giá trị của ```showScrollToTopButton```, đó không phải là thứ mà chúng ta muốn.
+
+còn đối với derivedStateOf, nó sẽ kiểm tra lại giá trị với với giá trị cũ, nếu trùng thì sẽ không cập nhật lại. Việc này tránh khỏi việc recompose lại như trên.
+
+## Tổng kết
+
+Khi xem qua ví dụ trên, có thể một vài người sẽ nghĩ chuyện này đơn giản và không quan trọng. Tuy nhiên trong thực thế, với các dự án lớn thì việc sử dụng thích hợp giữa derivedStateOf VS. remember(key) sẽ giảm thiểu sự giật lag đi rất nhiều.
 
 
 
